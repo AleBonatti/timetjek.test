@@ -48,7 +48,7 @@
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Clock In</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Clock Out</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Duration</th>
+                            <th scope="col" class="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Duration</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Status</th>
                         </tr>
                     </thead>
@@ -60,7 +60,7 @@
                             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-white">
                                 {{ entry.clock_out ? formatTime(entry.clock_out) : '-' }}
                             </td>
-                            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-white">
+                            <td class="hidden sm:table-cell whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-white">
                                 <span v-if="entry.clock_out">
                                     {{ calculateDuration(entry.clock_in, entry.clock_out) }}
                                 </span>

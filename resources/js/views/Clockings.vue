@@ -62,7 +62,7 @@
                     type="date"
                     label="From"
                     :max="dateRange.to || undefined"
-                    class="flex-1"
+                    class="w-full sm:flex-1"
                 />
                 <BaseInput
                     id="date-to"
@@ -70,13 +70,13 @@
                     type="date"
                     label="To"
                     :min="dateRange.from || undefined"
-                    class="flex-1"
+                    class="w-full sm:flex-1"
                 />
                 <BaseButton
                     variant="primary"
                     @click="applyDateRange"
                     :disabled="!dateRange.from || !dateRange.to"
-                    class="sm:mb-0"
+                    class="w-full sm:w-auto sm:mb-0"
                 >
                     Apply
                 </BaseButton>
