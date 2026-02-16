@@ -1,86 +1,63 @@
 <template>
-  <div class="relative flex grow flex-col gap-y-5">
-    <div class="relative flex h-16 shrink-0 items-center">
-      <img
-        :src="
-          theme === 'dark'
-            ? 'https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500'
-            : 'https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600'
-        "
-        alt="Timetjek"
-        class="h-8 w-auto"
-      >
+    <div class="relative flex grow flex-col gap-y-5">
+        <div class="relative flex h-16 shrink-0 items-center">
+            <img src="/public/images/blue.svg" alt="Timecheck" class="h-8 w-auto dark:hidden" />
+            <img src="/public/images/logga-vit.svg" alt="Timecheck" class="h-8 w-auto hidden dark:block" />
+        </div>
+        <nav class="relative flex flex-1 flex-col">
+            <ul role="list" class="flex flex-1 flex-col gap-y-7">
+                <li>
+                    <ul role="list" class="-mx-2 space-y-1">
+                        <li v-for="item in navigation" :key="item.name">
+                            <router-link
+                                :to="item.to"
+                                :class="[
+                                    isActive(item.to)
+                                        ? theme === 'dark'
+                                            ? 'bg-white/5 text-white'
+                                            : 'bg-gray-50 text-indigo-600'
+                                        : theme === 'dark'
+                                          ? 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                          : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
+                                    'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
+                                ]"
+                            >
+                                <component
+                                    :is="item.icon"
+                                    :class="[
+                                        isActive(item.to)
+                                            ? theme === 'dark'
+                                                ? 'text-white'
+                                                : 'text-indigo-600'
+                                            : theme === 'dark'
+                                              ? 'text-gray-400 group-hover:text-white'
+                                              : 'text-gray-400 group-hover:text-indigo-600',
+                                        'size-6 shrink-0',
+                                    ]"
+                                />
+                                {{ item.name }}
+                            </router-link>
+                        </li>
+                        <li>
+                            <button
+                                :class="[
+                                    theme === 'dark' ? 'text-gray-400 hover:bg-white/5 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
+                                    'group flex w-full gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
+                                ]"
+                                @click="$emit('logout')"
+                            >
+                                <component
+                                    :is="logoutItem.icon"
+                                    :class="[theme === 'dark' ? 'text-gray-400 group-hover:text-white' : 'text-gray-400 group-hover:text-indigo-600', 'size-6 shrink-0']"
+                                />
+                                {{ logoutItem.name }}
+                            </button>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
     </div>
-    <nav class="relative flex flex-1 flex-col">
-      <ul
-        role="list"
-        class="flex flex-1 flex-col gap-y-7"
-      >
-        <li>
-          <ul
-            role="list"
-            class="-mx-2 space-y-1"
-          >
-            <li
-              v-for="item in navigation"
-              :key="item.name"
-            >
-              <router-link
-                :to="item.to"
-                :class="[
-                  isActive(item.to)
-                    ? theme === 'dark'
-                      ? 'bg-white/5 text-white'
-                      : 'bg-gray-50 text-indigo-600'
-                    : theme === 'dark'
-                      ? 'text-gray-400 hover:bg-white/5 hover:text-white'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
-                  'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
-                ]"
-              >
-                <component
-                  :is="item.icon"
-                  :class="[
-                    isActive(item.to)
-                      ? theme === 'dark'
-                        ? 'text-white'
-                        : 'text-indigo-600'
-                      : theme === 'dark'
-                        ? 'text-gray-400 group-hover:text-white'
-                        : 'text-gray-400 group-hover:text-indigo-600',
-                    'size-6 shrink-0',
-                  ]"
-                />
-                {{ item.name }}
-              </router-link>
-            </li>
-            <li>
-              <button
-                :class="[
-                  theme === 'dark'
-                    ? 'text-gray-400 hover:bg-white/5 hover:text-white'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
-                  'group flex w-full gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
-                ]"
-                @click="$emit('logout')"
-              >
-                <component
-                  :is="logoutItem.icon"
-                  :class="[
-                    theme === 'dark'
-                      ? 'text-gray-400 group-hover:text-white'
-                      : 'text-gray-400 group-hover:text-indigo-600',
-                    'size-6 shrink-0',
-                  ]"
-                />
-                {{ logoutItem.name }}
-              </button>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </nav>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -88,11 +65,11 @@ import { h } from 'vue';
 import { useRoute } from 'vue-router';
 
 defineProps<{
-  theme: 'light' | 'dark'
+    theme: 'light' | 'dark';
 }>();
 
 defineEmits<{
-  logout: []
+    logout: [];
 }>();
 
 const route = useRoute();

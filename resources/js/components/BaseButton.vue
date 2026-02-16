@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
 const isDisabled = computed(() => props.disabled || props.loading);
 
 const buttonClasses = computed(() => {
-    const base = 'flex justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    const base = 'flex justify-center items-center rounded-md px-4 py-3 text-base font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
     const widthClass = props.fullWidth ? 'w-full' : '';
 
@@ -45,7 +45,7 @@ const buttonClasses = computed(() => {
   >
     <svg
       v-if="loading"
-      class="animate-spin h-5 w-5"
+      class="animate-spin h-6 w-6"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
