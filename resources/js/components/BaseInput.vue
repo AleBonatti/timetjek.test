@@ -1,13 +1,15 @@
 <script setup lang="ts">
 interface Props {
     id: string;
-    type?: 'text' | 'email' | 'password' | 'number';
+    type?: 'text' | 'email' | 'password' | 'number' | 'datetime-local' | 'date' | 'time';
     label: string;
     modelValue: string;
     placeholder?: string;
     required?: boolean;
     autocomplete?: string;
     error?: string;
+    min?: string;
+    max?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -45,6 +47,8 @@ const handleInput = (event: Event) => {
         :placeholder="placeholder"
         :required="required"
         :autocomplete="autocomplete"
+        :min="min"
+        :max="max"
         :class="[
           'block w-full rounded-md px-3 py-1.5 text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6',
           error

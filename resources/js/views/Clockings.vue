@@ -78,7 +78,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-gray-800/50">
-                                        <tr v-for="entry in entries" :key="entry.id">
+                                        <tr v-for="entry in entries" :key="entry.id" @click="openEditModal(entry)" class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/75 transition-colors">
                                             <td class="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white sm:pl-6">
                                                 {{ formatTime(entry.clock_in) }}
                                             </td>
@@ -117,12 +117,64 @@
                 </div>
             </div>
         </div>
+
+        <!-- Edit Modal -->
+        <BaseModal :open="isEditModalOpen" :title="modalTitle" @close="closeEditModal">
+            <div class="space-y-4">
+                <div v-if="editErrors.general" class="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
+                    <p class="text-sm text-red-800 dark:text-red-200">{{ editErrors.general }}</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <BaseInput
+                        id="edit-clock-in"
+                        v-model="editForm.clock_in"
+                        type="time"
+                        label="Clock In Time"
+                        required
+                        :error="editErrors.clock_in?.[0]"
+                    />
+
+                    <BaseInput
+                        id="edit-clock-out"
+                        v-model="editForm.clock_out"
+                        type="time"
+                        label="Clock Out Time"
+                        :error="editErrors.clock_out?.[0]"
+                    />
+                </div>
+
+                <BaseTextarea
+                    id="edit-notes"
+                    v-model="editForm.notes"
+                    label="Notes"
+                    placeholder="Add any notes about this time entry..."
+                    :rows="4"
+                    :error="editErrors.notes?.[0]"
+                />
+            </div>
+
+            <template #actions>
+                <div class="flex gap-3">
+                    <BaseButton variant="secondary" :full-width="true" @click="closeEditModal">
+                        Cancel
+                    </BaseButton>
+                    <BaseButton variant="primary" :full-width="true" :loading="isSaving" @click="saveEntry">
+                        Save Changes
+                    </BaseButton>
+                </div>
+            </template>
+        </BaseModal>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import PageHeading from '@/components/PageHeading.vue';
+import BaseModal from '@/components/BaseModal.vue';
+import BaseInput from '@/components/BaseInput.vue';
+import BaseTextarea from '@/components/BaseTextarea.vue';
+import BaseButton from '@/components/BaseButton.vue';
 import axios from '@/utils/axios';
 import type { TimeEntry } from '@/types';
 
@@ -131,6 +183,26 @@ type ViewMode = 'week' | 'month';
 const viewMode = ref<ViewMode>('week');
 const timeEntries = ref<TimeEntry[]>([]);
 const isLoading = ref(false);
+const isEditModalOpen = ref(false);
+const isSaving = ref(false);
+const editingEntry = ref<TimeEntry | null>(null);
+const editForm = ref({
+    clock_in: '',
+    clock_out: '',
+    notes: '',
+});
+const editErrors = ref<Record<string, string>>({});
+
+const modalTitle = computed(() => {
+    if (!editingEntry.value) return 'Edit Time Entry';
+    const date = new Date(editingEntry.value.clock_in);
+    const formattedDate = date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
+    return `Edit Time Entry for ${formattedDate}`;
+});
 
 const groupedEntries = computed(() => {
     const groups: Record<string, TimeEntry[]> = {};
@@ -220,6 +292,97 @@ const getDayTotal = (entries: TimeEntry[]) => {
     const minutes = totalMinutes % 60;
 
     return `${hours}h ${minutes}m`;
+};
+
+const formatTimeForInput = (dateTime: string | null) => {
+    if (!dateTime) return '';
+    const date = new Date(dateTime);
+    // Format as HH:mm for time input
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+};
+
+const openEditModal = (entry: TimeEntry) => {
+    editingEntry.value = entry;
+    editForm.value = {
+        clock_in: formatTimeForInput(entry.clock_in),
+        clock_out: formatTimeForInput(entry.clock_out),
+        notes: entry.notes || '',
+    };
+    editErrors.value = {};
+    isEditModalOpen.value = true;
+};
+
+const closeEditModal = () => {
+    isEditModalOpen.value = false;
+    editingEntry.value = null;
+    editForm.value = {
+        clock_in: '',
+        clock_out: '',
+        notes: '',
+    };
+    editErrors.value = {};
+};
+
+const saveEntry = async () => {
+    if (!editingEntry.value) return;
+
+    isSaving.value = true;
+    editErrors.value = {};
+
+    try {
+        // Combine the original date with the new time
+        const originalClockIn = new Date(editingEntry.value.clock_in);
+        const originalClockOut = editingEntry.value.clock_out ? new Date(editingEntry.value.clock_out) : null;
+
+        // Parse time from HH:mm format and combine with original date
+        const [clockInHours, clockInMinutes] = editForm.value.clock_in.split(':').map(Number);
+        const newClockIn = new Date(originalClockIn);
+        newClockIn.setHours(clockInHours, clockInMinutes, 0, 0);
+
+        let newClockOut = null;
+        if (editForm.value.clock_out && originalClockOut) {
+            const [clockOutHours, clockOutMinutes] = editForm.value.clock_out.split(':').map(Number);
+            newClockOut = new Date(originalClockOut);
+            newClockOut.setHours(clockOutHours, clockOutMinutes, 0, 0);
+        }
+
+        // Format datetime in YYYY-MM-DD HH:mm:ss format (Laravel expects this format)
+        const formatDateTime = (date: Date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        };
+
+        const response = await axios.put(`/api/time-entries/${editingEntry.value.id}`, {
+            clock_in: formatDateTime(newClockIn),
+            clock_out: newClockOut ? formatDateTime(newClockOut) : null,
+            notes: editForm.value.notes || null,
+        });
+
+        // Update the entry in the list
+        const index = timeEntries.value.findIndex((e) => e.id === editingEntry.value!.id);
+        if (index !== -1) {
+            timeEntries.value[index] = response.data.time_entry;
+        }
+
+        closeEditModal();
+    } catch (error: any) {
+        if (error.response?.data?.errors) {
+            editErrors.value = error.response.data.errors;
+        } else if (error.response?.data?.message) {
+            editErrors.value = { general: error.response.data.message };
+        } else {
+            editErrors.value = { general: 'An error occurred while saving the entry.' };
+        }
+    } finally {
+        isSaving.value = false;
+    }
 };
 
 // Watch for view mode changes
