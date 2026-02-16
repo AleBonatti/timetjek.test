@@ -56,30 +56,9 @@
         <!-- Custom Date Range -->
         <div v-if="viewMode === 'custom'" class="mt-4">
             <div class="flex flex-col sm:flex-row gap-4 items-end">
-                <BaseInput
-                    id="date-from"
-                    v-model="dateRange.from"
-                    type="date"
-                    label="From"
-                    :max="dateRange.to || undefined"
-                    class="w-full sm:flex-1"
-                />
-                <BaseInput
-                    id="date-to"
-                    v-model="dateRange.to"
-                    type="date"
-                    label="To"
-                    :min="dateRange.from || undefined"
-                    class="w-full sm:flex-1"
-                />
-                <BaseButton
-                    variant="primary"
-                    @click="applyDateRange"
-                    :disabled="!dateRange.from || !dateRange.to"
-                    class="w-full sm:w-auto sm:mb-0"
-                >
-                    Apply
-                </BaseButton>
+                <BaseInput id="date-from" v-model="dateRange.from" type="date" label="From" :max="dateRange.to || undefined" class="w-full sm:flex-1" />
+                <BaseInput id="date-to" v-model="dateRange.to" type="date" label="To" :min="dateRange.from || undefined" class="w-full sm:flex-1" />
+                <BaseButton variant="primary" @click="applyDateRange" :disabled="!dateRange.from || !dateRange.to" class="w-full sm:w-auto sm:mb-0"> Apply </BaseButton>
             </div>
         </div>
 
@@ -113,21 +92,19 @@
                                 <table class="relative min-w-full divide-y divide-gray-300 dark:divide-white/15">
                                     <thead class="bg-gray-50 dark:bg-gray-800/75">
                                         <tr>
-                                            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-200 sm:pl-6">Clock In</th>
-                                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-200">Clock Out</th>
-                                            <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900 dark:text-gray-200">Status</th>
+                                            <th scope="col" class="py-3.5 pr-3 pl-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-200 sm:pl-6">Time</th>
+                                            <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-200">Status</th>
                                             <th scope="col" class="py-3.5 pr-4 pl-3 text-right text-sm font-semibold text-gray-900 dark:text-gray-200 sm:pr-6">Duration</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-gray-800/50">
                                         <tr v-for="entry in entries" :key="entry.id" @click="openEditModal(entry)" class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/75 transition-colors">
-                                            <td class="py-4 pr-3 pl-4 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white sm:pl-6">
-                                                {{ formatTime(entry.clock_in) }}
+                                            <td class="py-4 pr-3 pl-4 text-sm whitespace-nowrap sm:pl-6">
+                                                <span class="font-medium text-gray-900 dark:text-white">{{ formatTime(entry.clock_in) }}</span>
+                                                <span class="text-gray-500 dark:text-gray-400 mx-2">-</span>
+                                                <span class="text-gray-500 dark:text-gray-400">{{ entry.clock_out ? formatTime(entry.clock_out) : 'running...' }}</span>
                                             </td>
-                                            <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500 dark:text-gray-400">
-                                                {{ entry.clock_out ? formatTime(entry.clock_out) : '-' }}
-                                            </td>
-                                            <td class="px-3 py-4 text-sm text-right whitespace-nowrap">
+                                            <td class="px-3 py-4 text-sm text-center whitespace-nowrap">
                                                 <span
                                                     :class="[
                                                         'inline-flex rounded-full px-2 py-1 text-xs font-semibold',
@@ -146,7 +123,7 @@
                                     </tbody>
                                     <tfoot class="bg-gray-50 dark:bg-gray-800/75">
                                         <tr>
-                                            <th scope="row" colspan="3" class="py-3.5 pr-3 pl-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-200 sm:pl-6"></th>
+                                            <th scope="row" colspan="2" class="py-3.5 pr-3 pl-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-200 sm:pl-6"></th>
                                             <td class="py-3.5 pr-4 pl-3 text-sm text-right font-semibold whitespace-nowrap text-gray-900 dark:text-gray-200 sm:pr-6">
                                                 Total: {{ getDayTotal(entries) }}
                                             </td>
@@ -178,10 +155,10 @@
 
             <template #actions>
                 <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
-                    <BaseButton variant="danger" @click="deleteEntry" :loading="isDeleting"> Delete Entry </BaseButton>
-                    <div class="flex gap-3">
-                        <BaseButton variant="secondary" @click="closeEditModal"> Cancel </BaseButton>
-                        <BaseButton variant="primary" :loading="isSaving" @click="saveEntry"> Save Changes </BaseButton>
+                    <BaseButton variant="danger" @click="deleteEntry" :loading="isDeleting" :full-width="true" class="sm:w-auto"> Delete Entry </BaseButton>
+                    <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        <BaseButton variant="secondary" @click="closeEditModal" :full-width="true" class="sm:w-auto"> Cancel </BaseButton>
+                        <BaseButton variant="primary" :loading="isSaving" @click="saveEntry" :full-width="true" class="sm:w-auto"> Save Changes </BaseButton>
                     </div>
                 </div>
             </template>
@@ -227,7 +204,7 @@ const modalTitle = computed(() => {
         day: 'numeric',
         year: 'numeric',
     });
-    return `Edit Time Entry for ${formattedDate}`;
+    return `Time Entry for ${formattedDate}`;
 });
 
 const groupedEntries = computed(() => {

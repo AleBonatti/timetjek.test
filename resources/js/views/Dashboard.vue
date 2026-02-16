@@ -24,8 +24,8 @@
 
         <div class="mt-8">
             <div class="flex flex-col sm:flex-row gap-4">
-                <BaseButton variant="success" size="lg" :disabled="!canClockIn" :loading="isClockingIn" :full-width="true" @click="handleClockIn"> Clock In </BaseButton>
-                <BaseButton variant="warning" size="lg" :disabled="!canClockOut" :loading="isClockingOut" :full-width="true" @click="handleClockOut"> Clock Out </BaseButton>
+                <BaseButton variant="success" size="lg" :disabled="!canClockIn || isClockingIn" :full-width="true" @click="handleClockIn"> Clock In </BaseButton>
+                <BaseButton variant="warning" size="lg" :disabled="!canClockOut || isClockingOut" :full-width="true" @click="handleClockOut"> Clock Out </BaseButton>
             </div>
         </div>
 
@@ -47,7 +47,7 @@
                     <thead class="bg-gray-50 dark:bg-white/5">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Clock In</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Clock Out</th>
+                            <th scope="col" class="px-4 sm:px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Clock Out</th>
                             <th scope="col" class="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Duration</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Status</th>
                         </tr>
@@ -135,26 +135,19 @@ const getCurrentPosition = (): Promise<{ latitude: number; longitude: number } |
                 });
             },
             (error) => {
-                switch (error.code) {
-                    case error.PERMISSION_DENIED:
-                        locationWarning.value = 'Location access denied. Please enable location permissions in your browser settings to record your location with time entries.';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        locationWarning.value = 'Location information is unavailable. Time entries will be recorded without location data.';
-                        break;
-                    case error.TIMEOUT:
-                        locationWarning.value = 'Location request timed out. Time entries will be recorded without location data.';
-                        break;
-                    default:
-                        locationWarning.value = 'An unknown error occurred while getting your location. Time entries will be recorded without location data.';
-                        break;
+                // Only show warning for permission denied, silently handle other errors
+                if (error.code === error.PERMISSION_DENIED) {
+                    locationWarning.value = 'Location access denied. Please enable location permissions in your browser settings to record your location with time entries.';
+                } else {
+                    // Clear any previous warnings for non-critical errors
+                    locationWarning.value = null;
                 }
                 resolve(null);
             },
             {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0,
+                enableHighAccuracy: false,
+                timeout: 5000,
+                maximumAge: 60000,
             }
         );
     });
