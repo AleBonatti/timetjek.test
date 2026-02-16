@@ -21,4 +21,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/time-entries/clock-in', [TimeEntryController::class, 'clockIn']);
     Route::post('/time-entries/clock-out', [TimeEntryController::class, 'clockOut']);
     Route::put('/time-entries/{timeEntry}', [TimeEntryController::class, 'update']);
+    Route::delete('/time-entries/{timeEntry}', [TimeEntryController::class, 'destroy']);
 });

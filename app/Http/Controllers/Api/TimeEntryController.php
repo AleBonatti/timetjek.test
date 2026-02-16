@@ -221,4 +221,23 @@ class TimeEntryController extends Controller
             'message' => 'Time entry updated successfully',
         ]);
     }
+
+    /**
+     * Delete a time entry.
+     */
+    public function destroy(Request $request, TimeEntry $timeEntry)
+    {
+        // Ensure the time entry belongs to the authenticated user
+        if ($timeEntry->user_id !== $request->user()->id) {
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        $timeEntry->delete();
+
+        return response()->json([
+            'message' => 'Time entry deleted successfully',
+        ]);
+    }
 }

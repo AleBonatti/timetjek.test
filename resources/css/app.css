@@ -4,6 +4,20 @@
 
 @variant dark (&:is(.dark *));
 
+@theme {
+    --color-primary-50: #eff8ff;
+    --color-primary-100: #dff0ff;
+    --color-primary-200: #b8e4ff;
+    --color-primary-300: #78d1ff;
+    --color-primary-400: #30bbff;
+    --color-primary-500: #06a3f1;
+    --color-primary-600: #1d7cc0;
+    --color-primary-700: #0867a6;
+    --color-primary-800: #0d5689;
+    --color-primary-900: #114872;
+    --color-primary-950: #0b2d4b;
+}
+
 /* Base styles for html and body */
 html {
     min-height: 100vh;

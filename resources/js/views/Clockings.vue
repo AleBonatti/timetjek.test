@@ -1,6 +1,6 @@
 <template>
     <div>
-        <PageHeading title="Clockings" description="View and manage your time entries" />
+        <PageHeading title="Time Entries" description="View and manage your time entries" />
 
         <!-- View Switcher -->
         <div class="mt-6">
@@ -67,7 +67,7 @@
                 <div class="mt-4 flow-root">
                     <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                            <div class="overflow-hidden outline-1 -outline-offset-1 outline-gray-300 dark:outline-white/10 sm:rounded-lg">
+                            <div class="overflow-hidden shadow-sm outline-1 outline-black/5 dark:outline-white/10 sm:rounded-lg">
                                 <table class="relative min-w-full divide-y divide-gray-300 dark:divide-white/15">
                                     <thead class="bg-gray-50 dark:bg-gray-800/75">
                                         <tr>
@@ -126,42 +126,27 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <BaseInput
-                        id="edit-clock-in"
-                        v-model="editForm.clock_in"
-                        type="time"
-                        label="Clock In Time"
-                        required
-                        :error="editErrors.clock_in?.[0]"
-                    />
+                    <BaseInput id="edit-clock-in" v-model="editForm.clock_in" type="time" label="Clock In Time" required :error="editErrors.clock_in?.[0]" />
 
-                    <BaseInput
-                        id="edit-clock-out"
-                        v-model="editForm.clock_out"
-                        type="time"
-                        label="Clock Out Time"
-                        :error="editErrors.clock_out?.[0]"
-                    />
+                    <BaseInput id="edit-clock-out" v-model="editForm.clock_out" type="time" label="Clock Out Time" :error="editErrors.clock_out?.[0]" />
                 </div>
 
-                <BaseTextarea
-                    id="edit-notes"
-                    v-model="editForm.notes"
-                    label="Notes"
-                    placeholder="Add any notes about this time entry..."
-                    :rows="4"
-                    :error="editErrors.notes?.[0]"
-                />
+                <BaseTextarea id="edit-notes" v-model="editForm.notes" label="Notes" placeholder="Add any notes about this time entry..." :rows="4" :error="editErrors.notes?.[0]" />
             </div>
 
             <template #actions>
-                <div class="flex gap-3">
-                    <BaseButton variant="secondary" :full-width="true" @click="closeEditModal">
-                        Cancel
+                <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+                    <BaseButton variant="danger" @click="deleteEntry" :loading="isDeleting">
+                        Delete Entry
                     </BaseButton>
-                    <BaseButton variant="primary" :full-width="true" :loading="isSaving" @click="saveEntry">
-                        Save Changes
-                    </BaseButton>
+                    <div class="flex gap-3">
+                        <BaseButton variant="secondary" @click="closeEditModal">
+                            Cancel
+                        </BaseButton>
+                        <BaseButton variant="primary" :loading="isSaving" @click="saveEntry">
+                            Save Changes
+                        </BaseButton>
+                    </div>
                 </div>
             </template>
         </BaseModal>
@@ -185,6 +170,7 @@ const timeEntries = ref<TimeEntry[]>([]);
 const isLoading = ref(false);
 const isEditModalOpen = ref(false);
 const isSaving = ref(false);
+const isDeleting = ref(false);
 const editingEntry = ref<TimeEntry | null>(null);
 const editForm = ref({
     clock_in: '',
@@ -199,7 +185,7 @@ const modalTitle = computed(() => {
     const formattedDate = date.toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
-        year: 'numeric'
+        year: 'numeric',
     });
     return `Edit Time Entry for ${formattedDate}`;
 });
@@ -304,6 +290,12 @@ const formatTimeForInput = (dateTime: string | null) => {
 };
 
 const openEditModal = (entry: TimeEntry) => {
+    // Don't allow editing open entries
+    if (!entry.clock_out) {
+        alert('Cannot edit an open time entry. Please clock out first.');
+        return;
+    }
+
     editingEntry.value = entry;
     editForm.value = {
         clock_in: formatTimeForInput(entry.clock_in),
@@ -382,6 +374,37 @@ const saveEntry = async () => {
         }
     } finally {
         isSaving.value = false;
+    }
+};
+
+const deleteEntry = async () => {
+    if (!editingEntry.value) return;
+
+    if (!confirm('Are you sure you want to delete this time entry? This action cannot be undone.')) {
+        return;
+    }
+
+    isDeleting.value = true;
+    editErrors.value = {};
+
+    try {
+        await axios.delete(`/api/time-entries/${editingEntry.value.id}`);
+
+        // Remove the entry from the list
+        const index = timeEntries.value.findIndex((e) => e.id === editingEntry.value!.id);
+        if (index !== -1) {
+            timeEntries.value.splice(index, 1);
+        }
+
+        closeEditModal();
+    } catch (error: any) {
+        if (error.response?.data?.message) {
+            editErrors.value = { general: error.response.data.message };
+        } else {
+            editErrors.value = { general: 'An error occurred while deleting the entry.' };
+        }
+    } finally {
+        isDeleting.value = false;
     }
 };
 

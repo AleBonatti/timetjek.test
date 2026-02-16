@@ -145,7 +145,7 @@ const currentPageTitle = computed(() => {
     const routeName = route.name as string;
     const titleMap: Record<string, string> = {
         dashboard: 'Dashboard',
-        clockings: 'Clockings',
+        clockings: 'Time Entries',
         settings: 'Settings',
     };
     return titleMap[routeName] || 'Dashboard';

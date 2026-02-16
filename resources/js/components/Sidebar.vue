@@ -153,7 +153,7 @@ const ArrowRightStartOnRectangleIcon = () =>
 
 const navigation = [
     { name: 'Dashboard', to: { name: 'dashboard' }, icon: HomeIcon },
-    { name: 'Clockings', to: { name: 'clockings' }, icon: ClockIcon },
+    { name: 'Time Entries', to: { name: 'clockings' }, icon: ClockIcon },
     { name: 'Settings', to: { name: 'settings' }, icon: CogIcon },
 ];
 
