@@ -80,4 +80,40 @@ class TimeEntryController extends Controller
             'message' => 'Clocked out successfully',
         ]);
     }
+
+    /**
+     * Get time entries for current week (Monday to Sunday).
+     */
+    public function currentWeek(Request $request)
+    {
+        $startOfWeek = now()->startOfWeek();
+        $endOfWeek = now()->endOfWeek();
+
+        $timeEntries = TimeEntry::where('user_id', $request->user()->id)
+            ->whereBetween('clock_in', [$startOfWeek, $endOfWeek])
+            ->orderBy('clock_in', 'asc')
+            ->get();
+
+        return response()->json([
+            'time_entries' => $timeEntries,
+        ]);
+    }
+
+    /**
+     * Get time entries for current month.
+     */
+    public function currentMonth(Request $request)
+    {
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+
+        $timeEntries = TimeEntry::where('user_id', $request->user()->id)
+            ->whereBetween('clock_in', [$startOfMonth, $endOfMonth])
+            ->orderBy('clock_in', 'asc')
+            ->get();
+
+        return response()->json([
+            'time_entries' => $timeEntries,
+        ]);
+    }
 }
