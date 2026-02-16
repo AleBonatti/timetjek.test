@@ -2,8 +2,12 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "dev": "vite",
         "build": "vite build",
-        "dev": "vite"
+        "lint": "eslint resources/js --ext .ts,.vue",
+        "lint:fix": "eslint resources/js --ext .ts,.vue --fix",
+        "format": "prettier --write \"resources/**/*.{js,ts,vue,css}\"",
+        "format:check": "prettier --check \"resources/**/*.{js,ts,vue,css}\""
     },
     "devDependencies": {
         "@heroicons/vue": "^2.2.0",

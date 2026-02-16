@@ -1,56 +1,86 @@
 <script setup lang="ts">
 interface Props {
-    open: boolean
-    title: string
-    maxWidth?: 'sm' | 'md' | 'lg' | 'xl'
+    open: boolean;
+    title: string;
+    maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 const props = withDefaults(defineProps<Props>(), {
     maxWidth: 'lg',
-})
+});
 
 const emit = defineEmits<{
-    close: []
-}>()
+    close: [];
+}>();
 
 const maxWidthClasses = {
     sm: 'sm:max-w-sm',
     md: 'sm:max-w-md',
     lg: 'sm:max-w-lg',
     xl: 'sm:max-w-xl',
-}
+};
 </script>
 
 <template>
-    <Transition name="modal" appear>
-        <div v-if="open" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <!-- Backdrop -->
-            <Transition name="backdrop" appear>
-                <div v-if="open" class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75" @click="emit('close')"></div>
-            </Transition>
+  <Transition
+    name="modal"
+    appear
+  >
+    <div
+      v-if="open"
+      class="relative z-50"
+      aria-labelledby="modal-title"
+      role="dialog"
+      aria-modal="true"
+    >
+      <!-- Backdrop -->
+      <Transition
+        name="backdrop"
+        appear
+      >
+        <div
+          v-if="open"
+          class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75"
+          @click="emit('close')"
+        />
+      </Transition>
 
-            <!-- Modal -->
-            <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-                <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                    <Transition name="modal-content" appear>
-                        <div v-if="open" :class="['relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800', maxWidthClasses[maxWidth]]">
-                            <div>
-                                <div>
-                                    <h3 class="text-base font-semibold text-gray-900 dark:text-white text-center sm:text-left" id="modal-title">{{ title }}</h3>
-                                    <div class="mt-6">
-                                        <slot />
-                                    </div>
-                                </div>
-                            </div>
-                            <div v-if="$slots.actions" class="mt-5 sm:mt-6">
-                                <slot name="actions" />
-                            </div>
-                        </div>
-                    </Transition>
+      <!-- Modal -->
+      <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+          <Transition
+            name="modal-content"
+            appear
+          >
+            <div
+              v-if="open"
+              :class="['relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800', maxWidthClasses[maxWidth]]"
+            >
+              <div>
+                <div>
+                  <h3
+                    id="modal-title"
+                    class="text-base font-semibold text-gray-900 dark:text-white text-center sm:text-left"
+                  >
+                    {{ title }}
+                  </h3>
+                  <div class="mt-6">
+                    <slot />
+                  </div>
                 </div>
+              </div>
+              <div
+                v-if="$slots.actions"
+                class="mt-5 sm:mt-6"
+              >
+                <slot name="actions" />
+              </div>
             </div>
+          </Transition>
         </div>
-    </Transition>
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <style scoped>
