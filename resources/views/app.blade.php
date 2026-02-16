@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,9 +7,18 @@
 
         <title>{{ config('app.name', 'Timetjek Test') }}</title>
 
+        <script>
+            // Initialize theme before page renders to avoid flash
+            (function() {
+                const theme = localStorage.getItem('theme') ||
+                    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.classList.add(theme);
+            })();
+        </script>
+
         @vite(['resources/css/app.css', 'resources/js/app.ts'])
     </head>
-    <body class="antialiased">
+    <body class="h-full antialiased">
         <div id="app"></div>
     </body>
 </html>

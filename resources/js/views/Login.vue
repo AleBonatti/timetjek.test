@@ -1,8 +1,53 @@
 <template>
-    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+    <div
+        class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-white dark:bg-gray-900"
+    >
+        <!-- Theme Toggle Button -->
+        <button
+            @click="toggleTheme"
+            type="button"
+            class="fixed top-4 right-4 rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-500 dark:hover:text-gray-400"
+            aria-label="Toggle theme"
+        >
+            <!-- Sun icon (show in dark mode) -->
+            <svg
+                v-if="theme === 'dark'"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+                />
+            </svg>
+            <!-- Moon icon (show in light mode) -->
+            <svg
+                v-else
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+                />
+            </svg>
+        </button>
+
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
             <img
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
+                :src="
+                    theme === 'dark'
+                        ? 'https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500'
+                        : 'https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600'
+                "
                 alt="Timetjek"
                 class="mx-auto h-10 w-auto"
             />
@@ -15,22 +60,43 @@
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <form @submit.prevent="handleSubmit" class="space-y-6">
-                <BaseInput
-                    id="personnummer"
-                    v-model="form.personnummer"
-                    label="Personnummer"
-                    type="text"
-                    placeholder="YYYYMMDD-XXXX"
-                    required
-                    autocomplete="username"
-                    :error="errors.personnummer"
-                />
+                <div>
+                    <label
+                        for="personnummer"
+                        class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"
+                    >
+                        Personnummer
+                    </label>
+                    <div class="mt-2">
+                        <input
+                            id="personnummer"
+                            v-model="form.personnummer"
+                            type="text"
+                            name="personnummer"
+                            required
+                            autocomplete="username"
+                            placeholder="YYYYMMDD-XXXX"
+                            :class="[
+                                'block w-full rounded-md px-3 py-1.5 text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6',
+                                errors.personnummer
+                                    ? 'outline-red-300 text-red-900 placeholder:text-red-300 focus:outline-red-500'
+                                    : 'bg-white text-gray-900 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500',
+                            ]"
+                        />
+                    </div>
+                    <p
+                        v-if="errors.personnummer"
+                        class="mt-2 text-sm text-red-600 dark:text-red-400"
+                    >
+                        {{ errors.personnummer }}
+                    </p>
+                </div>
 
                 <div>
                     <div class="flex items-center justify-between">
                         <label
                             for="password"
-                            class="block text-sm/6 font-medium text-gray-900 dark:text-white"
+                            class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"
                         >
                             Password
                         </label>
@@ -46,7 +112,7 @@
                             :class="[
                                 'block w-full rounded-md px-3 py-1.5 text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6',
                                 errors.password
-                                    ? 'outline-red-300 text-red-900 placeholder:text-red-300 focus:outline-red-500 dark:outline-red-500 dark:text-red-400 dark:placeholder:text-red-500 dark:focus:outline-red-500'
+                                    ? 'outline-red-300 text-red-900 placeholder:text-red-300 focus:outline-red-500'
                                     : 'bg-white text-gray-900 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500',
                             ]"
                         />
@@ -85,12 +151,13 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import BaseInput from '@/components/BaseInput.vue';
+import { useTheme } from '@/composables/useTheme';
 import BaseButton from '@/components/BaseButton.vue';
 import axios from '@/utils/axios';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const { theme, toggleTheme } = useTheme();
 
 const form = ref({
     personnummer: '',
