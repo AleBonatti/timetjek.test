@@ -322,6 +322,7 @@ const saveEntry = async () => {
 
     isSaving.value = true;
     editErrors.value = {};
+    const startTime = Date.now();
 
     try {
         // Combine the original date with the new time
@@ -362,8 +363,6 @@ const saveEntry = async () => {
         if (index !== -1) {
             timeEntries.value[index] = response.data.time_entry;
         }
-
-        closeEditModal();
     } catch (error: any) {
         if (error.response?.data?.errors) {
             editErrors.value = error.response.data.errors;
@@ -373,7 +372,17 @@ const saveEntry = async () => {
             editErrors.value = { general: 'An error occurred while saving the entry.' };
         }
     } finally {
-        isSaving.value = false;
+        // Ensure loading state is visible for at least 500ms
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, 500 - elapsedTime);
+
+        setTimeout(() => {
+            isSaving.value = false;
+            // Only close modal if there were no errors
+            if (Object.keys(editErrors.value).length === 0) {
+                closeEditModal();
+            }
+        }, remainingTime);
     }
 };
 

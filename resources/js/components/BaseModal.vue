@@ -55,6 +55,7 @@ const maxWidthClasses = {
             <div
               v-if="open"
               :class="['relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800', maxWidthClasses[maxWidth]]"
+              @click.stop
             >
               <div>
                 <div>
