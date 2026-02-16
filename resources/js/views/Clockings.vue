@@ -1,6 +1,6 @@
 <template>
     <div>
-        <PageHeading title="Time Entries" description="View and manage your time entries" />
+        <PageHeading title="Time Entries" description="View and manage your time entries. Click a row to edit Time Entry." />
 
         <!-- View Switcher -->
         <div class="mt-6">
@@ -11,6 +11,7 @@
                 >
                     <option value="week">Current Week</option>
                     <option value="month">Current Month</option>
+                    <option value="custom">Custom Range</option>
                 </select>
             </div>
             <div class="hidden sm:block">
@@ -37,7 +38,48 @@
                     >
                         Current Month
                     </button>
+                    <button
+                        @click="viewMode = 'custom'"
+                        :class="[
+                            viewMode === 'custom'
+                                ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-400'
+                                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
+                            'rounded-md px-3 py-2 text-sm font-medium',
+                        ]"
+                    >
+                        Custom Range
+                    </button>
                 </nav>
+            </div>
+        </div>
+
+        <!-- Custom Date Range -->
+        <div v-if="viewMode === 'custom'" class="mt-4">
+            <div class="flex flex-col sm:flex-row gap-4 items-end">
+                <BaseInput
+                    id="date-from"
+                    v-model="dateRange.from"
+                    type="date"
+                    label="From"
+                    :max="dateRange.to || undefined"
+                    class="flex-1"
+                />
+                <BaseInput
+                    id="date-to"
+                    v-model="dateRange.to"
+                    type="date"
+                    label="To"
+                    :min="dateRange.from || undefined"
+                    class="flex-1"
+                />
+                <BaseButton
+                    variant="primary"
+                    @click="applyDateRange"
+                    :disabled="!dateRange.from || !dateRange.to"
+                    class="sm:mb-0"
+                >
+                    Apply
+                </BaseButton>
             </div>
         </div>
 
@@ -136,16 +178,10 @@
 
             <template #actions>
                 <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
-                    <BaseButton variant="danger" @click="deleteEntry" :loading="isDeleting">
-                        Delete Entry
-                    </BaseButton>
+                    <BaseButton variant="danger" @click="deleteEntry" :loading="isDeleting"> Delete Entry </BaseButton>
                     <div class="flex gap-3">
-                        <BaseButton variant="secondary" @click="closeEditModal">
-                            Cancel
-                        </BaseButton>
-                        <BaseButton variant="primary" :loading="isSaving" @click="saveEntry">
-                            Save Changes
-                        </BaseButton>
+                        <BaseButton variant="secondary" @click="closeEditModal"> Cancel </BaseButton>
+                        <BaseButton variant="primary" :loading="isSaving" @click="saveEntry"> Save Changes </BaseButton>
                     </div>
                 </div>
             </template>
@@ -163,11 +199,15 @@ import BaseButton from '@/components/BaseButton.vue';
 import axios from '@/utils/axios';
 import type { TimeEntry } from '@/types';
 
-type ViewMode = 'week' | 'month';
+type ViewMode = 'week' | 'month' | 'custom';
 
 const viewMode = ref<ViewMode>('week');
 const timeEntries = ref<TimeEntry[]>([]);
 const isLoading = ref(false);
+const dateRange = ref({
+    from: '',
+    to: '',
+});
 const isEditModalOpen = ref(false);
 const isSaving = ref(false);
 const isDeleting = ref(false);
@@ -209,8 +249,22 @@ const fetchTimeEntries = async () => {
     const startTime = Date.now();
 
     try {
-        const endpoint = viewMode.value === 'week' ? '/api/time-entries/current-week' : '/api/time-entries/current-month';
-        const response = await axios.get(endpoint);
+        let endpoint = '';
+        let params = {};
+
+        if (viewMode.value === 'week') {
+            endpoint = '/api/time-entries/current-week';
+        } else if (viewMode.value === 'month') {
+            endpoint = '/api/time-entries/current-month';
+        } else if (viewMode.value === 'custom') {
+            endpoint = '/api/time-entries/date-range';
+            params = {
+                from: dateRange.value.from,
+                to: dateRange.value.to,
+            };
+        }
+
+        const response = await axios.get(endpoint, { params });
         timeEntries.value = response.data.time_entries;
     } catch (error) {
         console.error('Error fetching time entries:', error);
@@ -223,6 +277,23 @@ const fetchTimeEntries = async () => {
             isLoading.value = false;
         }, remainingTime);
     }
+};
+
+const applyDateRange = () => {
+    if (!dateRange.value.from || !dateRange.value.to) {
+        return;
+    }
+
+    // Validate that 'from' is not after 'to'
+    const fromDate = new Date(dateRange.value.from);
+    const toDate = new Date(dateRange.value.to);
+
+    if (fromDate > toDate) {
+        alert('The "From" date must be before or equal to the "To" date.');
+        return;
+    }
+
+    fetchTimeEntries();
 };
 
 const formatDate = (dateString: string) => {
@@ -418,11 +489,27 @@ const deleteEntry = async () => {
 };
 
 // Watch for view mode changes
-watch(viewMode, () => {
-    fetchTimeEntries();
+watch(viewMode, (newMode) => {
+    // Only fetch automatically for week and month
+    // For custom, wait for user to click Apply
+    if (newMode === 'week' || newMode === 'month') {
+        fetchTimeEntries();
+    }
 });
 
 onMounted(() => {
+    // Set default date range to current week
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() - today.getDay() + 7); // Sunday
+
+    dateRange.value = {
+        from: startOfWeek.toISOString().split('T')[0],
+        to: endOfWeek.toISOString().split('T')[0],
+    };
+
     fetchTimeEntries();
 });
 </script>

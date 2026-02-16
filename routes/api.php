@@ -19,6 +19,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/time-entries/today', [TimeEntryController::class, 'today']);
     Route::get('/time-entries/current-week', [TimeEntryController::class, 'currentWeek']);
     Route::get('/time-entries/current-month', [TimeEntryController::class, 'currentMonth']);
+    Route::get('/time-entries/date-range', [TimeEntryController::class, 'dateRange']);
     Route::post('/time-entries/clock-in', [TimeEntryController::class, 'clockIn']);
     Route::post('/time-entries/clock-out', [TimeEntryController::class, 'clockOut']);
     Route::put('/time-entries/{timeEntry}', [TimeEntryController::class, 'update']);

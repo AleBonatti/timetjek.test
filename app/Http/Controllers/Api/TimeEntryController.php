@@ -118,6 +118,29 @@ class TimeEntryController extends Controller
     }
 
     /**
+     * Get time entries for a custom date range.
+     */
+    public function dateRange(Request $request)
+    {
+        $validated = $request->validate([
+            'from' => 'required|date',
+            'to' => 'required|date|after_or_equal:from',
+        ]);
+
+        $from = \Carbon\Carbon::parse($validated['from'])->startOfDay();
+        $to = \Carbon\Carbon::parse($validated['to'])->endOfDay();
+
+        $timeEntries = TimeEntry::where('user_id', $request->user()->id)
+            ->whereBetween('clock_in', [$from, $to])
+            ->orderBy('clock_in', 'desc')
+            ->get();
+
+        return response()->json([
+            'time_entries' => $timeEntries,
+        ]);
+    }
+
+    /**
      * Update a time entry.
      */
     public function update(Request $request, TimeEntry $timeEntry)
