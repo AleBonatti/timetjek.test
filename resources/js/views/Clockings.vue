@@ -104,8 +104,10 @@
                                     </tbody>
                                     <tfoot class="bg-gray-50 dark:bg-gray-800/75">
                                         <tr>
-                                            <th scope="row" colspan="3" class="py-3.5 pr-3 pl-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-200 sm:pl-6">Total:</th>
-                                            <td class="py-3.5 pr-4 pl-3 text-sm text-right font-semibold whitespace-nowrap text-gray-900 dark:text-gray-200 sm:pr-6">{{ getDayTotal(entries) }}</td>
+                                            <th scope="row" colspan="3" class="py-3.5 pr-3 pl-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-200 sm:pl-6"></th>
+                                            <td class="py-3.5 pr-4 pl-3 text-sm text-right font-semibold whitespace-nowrap text-gray-900 dark:text-gray-200 sm:pr-6">
+                                                Total: {{ getDayTotal(entries) }}
+                                            </td>
                                         </tr>
                                     </tfoot>
                                 </table>

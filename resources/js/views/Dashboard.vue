@@ -108,13 +108,14 @@ let timerInterval: ReturnType<typeof setInterval> | null = null;
 const canClockIn = computed(() => {
     if (todayTimeEntries.value.length === 0) return true;
     const latestEntry = todayTimeEntries.value[0];
-    return latestEntry.clock_out !== null;
+    // Can only clock in if the latest entry is closed (has a clock_out)
+    return latestEntry.clock_out != null; // != checks for both null and undefined
 });
 
 const canClockOut = computed(() => {
     if (todayTimeEntries.value.length === 0) return false;
     const latestEntry = todayTimeEntries.value[0];
-    return latestEntry.clock_out === null;
+    return latestEntry.clock_out == null; // == checks for both null and undefined
 });
 
 const getCurrentPosition = (): Promise<{ latitude: number; longitude: number } | null> => {
@@ -180,6 +181,9 @@ const fetchTodayTimeEntries = async () => {
 };
 
 const handleClockIn = async () => {
+    // Prevent clocking in if there's already an open entry
+    if (!canClockIn.value) return;
+
     isClockingIn.value = true;
     try {
         const position = await getCurrentPosition();
@@ -237,7 +241,8 @@ const calculateDuration = (clockIn: string, clockOut: string) => {
 
 const getLiveDuration = (clockIn: string) => {
     const start = new Date(clockIn);
-    const diff = currentTime.value.getTime() - start.getTime();
+    const now = currentTime.value;
+    const diff = Math.max(0, now.getTime() - start.getTime());
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);

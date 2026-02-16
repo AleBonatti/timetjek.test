@@ -28,6 +28,24 @@ class TimeEntry extends Model
     ];
 
     /**
+     * Append nullable attributes to array/JSON representation.
+     */
+    protected function getArrayableAttributes(): array
+    {
+        $attributes = parent::getArrayableAttributes();
+
+        // Ensure nullable fields are always present
+        $nullableFields = ['clock_out', 'clock_in_latitude', 'clock_in_longitude', 'clock_out_latitude', 'clock_out_longitude', 'notes'];
+        foreach ($nullableFields as $field) {
+            if (!array_key_exists($field, $attributes)) {
+                $attributes[$field] = null;
+            }
+        }
+
+        return $attributes;
+    }
+
+    /**
      * Get the user that owns the time entry.
      */
     public function user(): BelongsTo

@@ -91,7 +91,7 @@ class TimeEntryController extends Controller
 
         $timeEntries = TimeEntry::where('user_id', $request->user()->id)
             ->whereBetween('clock_in', [$startOfWeek, $endOfWeek])
-            ->orderBy('clock_in', 'asc')
+            ->orderBy('clock_in', 'desc')
             ->get();
 
         return response()->json([
@@ -109,7 +109,7 @@ class TimeEntryController extends Controller
 
         $timeEntries = TimeEntry::where('user_id', $request->user()->id)
             ->whereBetween('clock_in', [$startOfMonth, $endOfMonth])
-            ->orderBy('clock_in', 'asc')
+            ->orderBy('clock_in', 'desc')
             ->get();
 
         return response()->json([
