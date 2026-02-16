@@ -13,6 +13,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/user/password', [AuthController::class, 'updatePassword']);
+    Route::put('/user/profile', [AuthController::class, 'updateProfile']);
 
     // Time entry routes
     Route::get('/time-entries/today', [TimeEntryController::class, 'today']);

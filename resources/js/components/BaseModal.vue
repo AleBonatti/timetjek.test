@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted, watch } from 'vue';
+
 interface Props {
     open: boolean;
     title: string;
@@ -19,6 +21,26 @@ const maxWidthClasses = {
     lg: 'sm:max-w-lg',
     xl: 'sm:max-w-xl',
 };
+
+const handleEscape = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && props.open) {
+        emit('close');
+    }
+};
+
+// Watch for open prop changes to add/remove event listener
+watch(() => props.open, (isOpen) => {
+    if (isOpen) {
+        document.addEventListener('keydown', handleEscape);
+    } else {
+        document.removeEventListener('keydown', handleEscape);
+    }
+});
+
+// Cleanup on unmount
+onUnmounted(() => {
+    document.removeEventListener('keydown', handleEscape);
+});
 </script>
 
 <template>
@@ -41,12 +63,11 @@ const maxWidthClasses = {
         <div
           v-if="open"
           class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75"
-          @click="emit('close')"
         />
       </Transition>
 
       <!-- Modal -->
-      <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+      <div class="fixed inset-0 z-10 w-screen overflow-y-auto" @click="emit('close')">
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
           <Transition
             name="modal-content"
