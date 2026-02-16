@@ -26,7 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             const response = await axios.get('/api/user');
             setUser(response.data.user);
-        } catch (error) {
+        } catch {
             clearUser();
         } finally {
             isLoading.value = false;

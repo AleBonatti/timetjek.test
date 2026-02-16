@@ -17,35 +17,35 @@
             <div class="hidden sm:block">
                 <nav class="flex space-x-4" aria-label="Tabs">
                     <button
-                        @click="viewMode = 'week'"
                         :class="[
                             viewMode === 'week'
                                 ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-400'
                                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
                             'rounded-md px-3 py-2 text-sm font-medium',
                         ]"
+                        @click="viewMode = 'week'"
                     >
                         Current Week
                     </button>
                     <button
-                        @click="viewMode = 'month'"
                         :class="[
                             viewMode === 'month'
                                 ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-400'
                                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
                             'rounded-md px-3 py-2 text-sm font-medium',
                         ]"
+                        @click="viewMode = 'month'"
                     >
                         Current Month
                     </button>
                     <button
-                        @click="viewMode = 'custom'"
                         :class="[
                             viewMode === 'custom'
                                 ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-400'
                                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300',
                             'rounded-md px-3 py-2 text-sm font-medium',
                         ]"
+                        @click="viewMode = 'custom'"
                     >
                         Custom Range
                     </button>
@@ -58,15 +58,15 @@
             <div class="flex flex-col sm:flex-row gap-4 items-end">
                 <BaseInput id="date-from" v-model="dateRange.from" type="date" label="From" :max="dateRange.to || undefined" class="w-full sm:flex-1" />
                 <BaseInput id="date-to" v-model="dateRange.to" type="date" label="To" :min="dateRange.from || undefined" class="w-full sm:flex-1" />
-                <BaseButton variant="primary" @click="applyDateRange" :disabled="!dateRange.from || !dateRange.to" class="w-full sm:w-auto sm:mb-0"> Apply </BaseButton>
+                <BaseButton variant="primary" :disabled="!dateRange.from || !dateRange.to" class="w-full sm:w-auto sm:mb-0" @click="applyDateRange"> Apply </BaseButton>
             </div>
         </div>
 
         <!-- Loading State -->
         <div v-if="isLoading" class="mt-8 text-center py-12">
             <svg class="animate-spin h-12 w-12 mx-auto text-primary-600 dark:text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
             <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Loading time entries...</p>
         </div>
@@ -81,7 +81,9 @@
             <div v-for="(entries, date) in groupedEntries" :key="date">
                 <div class="sm:flex sm:items-center">
                     <div class="sm:flex-auto">
-                        <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ formatDate(date) }}</h2>
+                        <h2 class="text-base font-semibold text-gray-900 dark:text-white">
+                            {{ formatDate(date) }}
+                        </h2>
                     </div>
                 </div>
 
@@ -98,7 +100,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200 dark:divide-white/10 bg-white dark:bg-gray-800/50">
-                                        <tr v-for="entry in entries" :key="entry.id" @click="openEditModal(entry)" class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/75 transition-colors">
+                                        <tr v-for="entry in entries" :key="entry.id" class="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/75 transition-colors" @click="openEditModal(entry)">
                                             <td class="py-4 pr-3 pl-4 text-sm whitespace-nowrap sm:pl-6">
                                                 <span class="font-medium text-gray-900 dark:text-white">{{ formatTime(entry.clock_in) }}</span>
                                                 <span class="text-gray-500 dark:text-gray-400 mx-2">-</span>
@@ -123,7 +125,7 @@
                                     </tbody>
                                     <tfoot class="bg-gray-50 dark:bg-gray-800/75">
                                         <tr>
-                                            <th scope="row" colspan="2" class="py-3.5 pr-3 pl-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-200 sm:pl-6"></th>
+                                            <th scope="row" colspan="2" class="py-3.5 pr-3 pl-4 text-right text-sm font-semibold text-gray-900 dark:text-gray-200 sm:pl-6" />
                                             <td class="py-3.5 pr-4 pl-3 text-sm text-right font-semibold whitespace-nowrap text-gray-900 dark:text-gray-200 sm:pr-6">
                                                 Total: {{ getDayTotal(entries) }}
                                             </td>
@@ -141,7 +143,9 @@
         <BaseModal :open="isEditModalOpen" :title="modalTitle" @close="closeEditModal">
             <div class="space-y-4">
                 <div v-if="editErrors.general" class="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
-                    <p class="text-sm text-red-800 dark:text-red-200">{{ editErrors.general }}</p>
+                    <p class="text-sm text-red-800 dark:text-red-200">
+                        {{ editErrors.general }}
+                    </p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -155,10 +159,10 @@
 
             <template #actions>
                 <div class="flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
-                    <BaseButton variant="danger" @click="deleteEntry" :loading="isDeleting" :full-width="true" class="sm:w-auto"> Delete Entry </BaseButton>
+                    <BaseButton variant="danger" :loading="isDeleting" :full-width="true" class="sm:w-auto" @click="deleteEntry"> Delete Entry </BaseButton>
                     <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                        <BaseButton variant="secondary" @click="closeEditModal" :full-width="true" class="sm:w-auto"> Cancel </BaseButton>
-                        <BaseButton variant="primary" :loading="isSaving" @click="saveEntry" :full-width="true" class="sm:w-auto"> Save Changes </BaseButton>
+                        <BaseButton variant="secondary" :full-width="true" class="sm:w-auto" @click="closeEditModal"> Cancel </BaseButton>
+                        <BaseButton variant="primary" :loading="isSaving" :full-width="true" class="sm:w-auto" @click="saveEntry"> Save Changes </BaseButton>
                     </div>
                 </div>
             </template>
@@ -411,11 +415,16 @@ const saveEntry = async () => {
         if (index !== -1) {
             timeEntries.value[index] = response.data.time_entry;
         }
-    } catch (error: any) {
-        if (error.response?.data?.errors) {
-            editErrors.value = error.response.data.errors;
-        } else if (error.response?.data?.message) {
-            editErrors.value = { general: error.response.data.message };
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as { response?: { data?: { errors?: Record<string, string>; message?: string } } };
+            if (axiosError.response?.data?.errors) {
+                editErrors.value = axiosError.response.data.errors;
+            } else if (axiosError.response?.data?.message) {
+                editErrors.value = { general: axiosError.response.data.message };
+            } else {
+                editErrors.value = { general: 'An error occurred while saving the entry.' };
+            }
         } else {
             editErrors.value = { general: 'An error occurred while saving the entry.' };
         }
@@ -454,9 +463,14 @@ const deleteEntry = async () => {
         }
 
         closeEditModal();
-    } catch (error: any) {
-        if (error.response?.data?.message) {
-            editErrors.value = { general: error.response.data.message };
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as { response?: { data?: { message?: string } } };
+            if (axiosError.response?.data?.message) {
+                editErrors.value = { general: axiosError.response.data.message };
+            } else {
+                editErrors.value = { general: 'An error occurred while deleting the entry.' };
+            }
         } else {
             editErrors.value = { general: 'An error occurred while deleting the entry.' };
         }

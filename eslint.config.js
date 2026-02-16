@@ -31,6 +31,10 @@ export default [
             'vue/no-v-html': 'warn',
             '@typescript-eslint/no-explicit-any': 'warn',
             '@typescript-eslint/explicit-module-boundary-types': 'off',
+            'vue/html-indent': 'off',
+            'vue/max-attributes-per-line': 'off',
+            'vue/html-self-closing': 'off',
+            'vue/singleline-html-element-content-newline': 'off',
         },
     },
     {

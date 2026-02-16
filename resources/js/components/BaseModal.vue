@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from 'vue';
+import { onUnmounted, watch } from 'vue';
 
 interface Props {
     open: boolean;
@@ -29,13 +29,16 @@ const handleEscape = (event: KeyboardEvent) => {
 };
 
 // Watch for open prop changes to add/remove event listener
-watch(() => props.open, (isOpen) => {
-    if (isOpen) {
-        document.addEventListener('keydown', handleEscape);
-    } else {
-        document.removeEventListener('keydown', handleEscape);
+watch(
+    () => props.open,
+    (isOpen) => {
+        if (isOpen) {
+            document.addEventListener('keydown', handleEscape);
+        } else {
+            document.removeEventListener('keydown', handleEscape);
+        }
     }
-});
+);
 
 // Cleanup on unmount
 onUnmounted(() => {
@@ -44,65 +47,41 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <Transition
-    name="modal"
-    appear
-  >
-    <div
-      v-if="open"
-      class="relative z-50"
-      aria-labelledby="modal-title"
-      role="dialog"
-      aria-modal="true"
-    >
-      <!-- Backdrop -->
-      <Transition
-        name="backdrop"
-        appear
-      >
-        <div
-          v-if="open"
-          class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75"
-        />
-      </Transition>
+    <Transition name="modal" appear>
+        <div v-if="open" class="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <!-- Backdrop -->
+            <Transition name="backdrop" appear>
+                <div v-if="open" class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75" />
+            </Transition>
 
-      <!-- Modal -->
-      <div class="fixed inset-0 z-10 w-screen overflow-y-auto" @click="emit('close')">
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-          <Transition
-            name="modal-content"
-            appear
-          >
-            <div
-              v-if="open"
-              :class="['relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800', maxWidthClasses[maxWidth]]"
-              @click.stop
-            >
-              <div>
-                <div>
-                  <h3
-                    id="modal-title"
-                    class="text-base font-semibold text-gray-900 dark:text-white text-center sm:text-left"
-                  >
-                    {{ title }}
-                  </h3>
-                  <div class="mt-6">
-                    <slot />
-                  </div>
+            <!-- Modal -->
+            <div class="fixed inset-0 z-10 w-screen overflow-y-auto" @click="emit('close')">
+                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+                    <Transition name="modal-content" appear>
+                        <div
+                            v-if="open"
+                            :class="['relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl sm:my-8 sm:w-full sm:p-6 dark:bg-gray-800', maxWidthClasses[maxWidth]]"
+                            @click.stop
+                        >
+                            <div>
+                                <div>
+                                    <h3 id="modal-title" class="text-base font-semibold text-gray-900 dark:text-white text-center sm:text-left">
+                                        {{ title }}
+                                    </h3>
+                                    <div class="mt-6">
+                                        <slot />
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="$slots.actions" class="mt-5 sm:mt-6">
+                                <slot name="actions" />
+                            </div>
+                        </div>
+                    </Transition>
                 </div>
-              </div>
-              <div
-                v-if="$slots.actions"
-                class="mt-5 sm:mt-6"
-              >
-                <slot name="actions" />
-              </div>
             </div>
-          </Transition>
         </div>
-      </div>
-    </div>
-  </Transition>
+    </Transition>
 </template>
 
 <style scoped>

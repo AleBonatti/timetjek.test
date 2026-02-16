@@ -155,11 +155,14 @@ watch(sidebarOpen, async (newValue) => {
 });
 
 // Close sidebar on route change
-watch(() => route.path, () => {
-    if (sidebarOpen.value) {
-        sidebarOpen.value = false;
+watch(
+    () => route.path,
+    () => {
+        if (sidebarOpen.value) {
+            sidebarOpen.value = false;
+        }
     }
-});
+);
 
 const userInitials = computed(() => {
     if (!user.value?.name) return '?';

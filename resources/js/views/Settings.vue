@@ -51,7 +51,7 @@
                     </div>
                 </div>
 
-                <form @submit.prevent="handleProfileSubmit" class="bg-white outline -outline-offset-1 outline-black/5 dark:bg-gray-800/50 dark:outline-white/10 sm:rounded-xl">
+                <form class="bg-white outline -outline-offset-1 outline-black/5 dark:bg-gray-800/50 dark:outline-white/10 sm:rounded-xl" @submit.prevent="handleProfileSubmit">
                     <div class="px-4 py-6 sm:p-8 space-y-6">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-900 dark:text-white"> Name </label>
@@ -141,7 +141,7 @@
                     </div>
                 </div>
 
-                <form @submit.prevent="handleSubmit" class="bg-white outline -outline-offset-1 outline-black/5 dark:bg-gray-800/50 dark:outline-white/10 sm:rounded-xl">
+                <form class="bg-white outline -outline-offset-1 outline-black/5 dark:bg-gray-800/50 dark:outline-white/10 sm:rounded-xl" @submit.prevent="handleSubmit">
                     <div class="px-4 py-6 sm:p-8 space-y-6">
                         <div>
                             <label for="current_password" class="block text-sm font-medium text-gray-900 dark:text-white"> Current Password </label>

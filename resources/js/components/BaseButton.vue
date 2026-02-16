@@ -42,7 +42,8 @@ const buttonClasses = computed(() => {
     const widthClass = props.fullWidth ? 'w-full' : '';
 
     const variantClasses = {
-        primary: 'bg-primary-600 text-white hover:bg-primary-500 focus-visible:outline-primary-600 dark:bg-primary-500 dark:shadow-none dark:hover:bg-primary-400 dark:focus-visible:outline-primary-500',
+        primary:
+            'bg-primary-600 text-white hover:bg-primary-500 focus-visible:outline-primary-600 dark:bg-primary-500 dark:shadow-none dark:hover:bg-primary-400 dark:focus-visible:outline-primary-500',
         secondary:
             'bg-white text-gray-900 outline-1 -outline-offset-1 outline-gray-300 hover:bg-gray-50 focus-visible:outline-gray-900 dark:bg-white/10 dark:text-white dark:outline-white/20 dark:hover:bg-white/20 dark:focus-visible:outline-white',
         danger: 'bg-red-600 text-white hover:bg-red-500 focus-visible:outline-red-600 dark:bg-red-500 dark:shadow-none dark:hover:bg-red-400 dark:focus-visible:outline-red-500',
@@ -55,34 +56,13 @@ const buttonClasses = computed(() => {
 </script>
 
 <template>
-  <button
-    :type="type"
-    :disabled="isDisabled"
-    :class="buttonClasses"
-  >
-    <svg
-      v-if="loading"
-      :class="['animate-spin', spinnerSizeClass]"
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <circle
-        class="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        stroke-width="4"
-      />
-      <path
-        class="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-      />
-    </svg>
-    <span v-else>
-      <slot />
-    </span>
-  </button>
+    <button :type="type" :disabled="isDisabled" :class="buttonClasses">
+        <svg v-if="loading" :class="['animate-spin', spinnerSizeClass]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <span v-else>
+            <slot />
+        </span>
+    </button>
 </template>
