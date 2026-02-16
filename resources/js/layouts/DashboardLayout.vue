@@ -1,13 +1,13 @@
 <template>
     <div class="min-h-full">
         <!-- Mobile sidebar dialog -->
-        <div v-if="sidebarOpen" class="relative z-50 lg:hidden" role="dialog" aria-modal="true">
+        <div v-if="showSidebar" class="relative z-50 lg:hidden" role="dialog" aria-modal="true">
             <!-- Backdrop -->
-            <div class="fixed inset-0 bg-gray-900/80 transition-opacity duration-300 ease-linear" @click="sidebarOpen = false" />
+            <div class="fixed inset-0 bg-gray-900/80 transition-opacity duration-300" :class="sidebarAnimating ? 'opacity-100' : 'opacity-0'" @click="sidebarOpen = false" />
 
             <div class="fixed inset-0 flex">
                 <!-- Sidebar panel -->
-                <div class="relative mr-16 flex w-full max-w-xs flex-1 transform transition duration-300 ease-in-out">
+                <div class="relative mr-16 flex w-full max-w-xs flex-1 transform transition-transform duration-300 ease-in-out" :class="sidebarAnimating ? 'translate-x-0' : '-translate-x-full'">
                     <!-- Close button -->
                     <div class="absolute top-0 left-full flex w-16 justify-center pt-5">
                         <button type="button" class="-m-2.5 p-2.5" @click="sidebarOpen = false">
@@ -118,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useTheme } from '@/composables/useTheme';
@@ -130,7 +130,36 @@ const authStore = useAuthStore();
 const { theme, toggleTheme } = useTheme();
 
 const sidebarOpen = ref(false);
+const showSidebar = ref(false);
+const sidebarAnimating = ref(false);
+
 const user = computed(() => authStore.user);
+
+// Handle sidebar animation
+watch(sidebarOpen, async (newValue) => {
+    if (newValue) {
+        // Opening
+        showSidebar.value = true;
+        await nextTick();
+        // Use setTimeout to ensure the DOM has rendered before applying transition
+        setTimeout(() => {
+            sidebarAnimating.value = true;
+        }, 10);
+    } else {
+        // Closing
+        sidebarAnimating.value = false;
+        setTimeout(() => {
+            showSidebar.value = false;
+        }, 300); // Match transition duration
+    }
+});
+
+// Close sidebar on route change
+watch(() => route.path, () => {
+    if (sidebarOpen.value) {
+        sidebarOpen.value = false;
+    }
+});
 
 const userInitials = computed(() => {
     if (!user.value?.name) return '?';
