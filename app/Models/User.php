@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -46,5 +47,32 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the time entries for the user.
+     */
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
+
+    /**
+     * Get the active time entry for the user.
+     */
+    public function activeTimeEntry(): ?TimeEntry
+    {
+        return $this->timeEntries()
+            ->whereNull('clock_out')
+            ->latest('clock_in')
+            ->first();
+    }
+
+    /**
+     * Check if the user has an active time entry.
+     */
+    public function hasActiveTimeEntry(): bool
+    {
+        return $this->activeTimeEntry() !== null;
     }
 }
