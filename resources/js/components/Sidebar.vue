@@ -15,10 +15,10 @@
                                     isActive(item.to)
                                         ? theme === 'dark'
                                             ? 'bg-white/5 text-white'
-                                            : 'bg-gray-50 text-indigo-600'
+                                            : 'bg-gray-50 text-primary-600'
                                         : theme === 'dark'
                                           ? 'text-gray-400 hover:bg-white/5 hover:text-white'
-                                          : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
+                                          : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600',
                                     'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
                                 ]"
                             >
@@ -28,10 +28,10 @@
                                         isActive(item.to)
                                             ? theme === 'dark'
                                                 ? 'text-white'
-                                                : 'text-indigo-600'
+                                                : 'text-primary-600'
                                             : theme === 'dark'
                                               ? 'text-gray-400 group-hover:text-white'
-                                              : 'text-gray-400 group-hover:text-indigo-600',
+                                              : 'text-gray-400 group-hover:text-primary-600',
                                         'size-6 shrink-0',
                                     ]"
                                 />
@@ -41,14 +41,14 @@
                         <li>
                             <button
                                 :class="[
-                                    theme === 'dark' ? 'text-gray-400 hover:bg-white/5 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
+                                    theme === 'dark' ? 'text-gray-400 hover:bg-white/5 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600',
                                     'group flex w-full gap-x-3 rounded-md p-2 text-sm/6 font-semibold',
                                 ]"
                                 @click="$emit('logout')"
                             >
                                 <component
                                     :is="logoutItem.icon"
-                                    :class="[theme === 'dark' ? 'text-gray-400 group-hover:text-white' : 'text-gray-400 group-hover:text-indigo-600', 'size-6 shrink-0']"
+                                    :class="[theme === 'dark' ? 'text-gray-400 group-hover:text-white' : 'text-gray-400 group-hover:text-primary-600', 'size-6 shrink-0']"
                                 />
                                 {{ logoutItem.name }}
                             </button>

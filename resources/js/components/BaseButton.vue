@@ -42,7 +42,7 @@ const buttonClasses = computed(() => {
     const widthClass = props.fullWidth ? 'w-full' : '';
 
     const variantClasses = {
-        primary: 'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:shadow-none dark:hover:bg-indigo-400 dark:focus-visible:outline-indigo-500',
+        primary: 'bg-primary-600 text-white hover:bg-primary-500 focus-visible:outline-primary-600 dark:bg-primary-500 dark:shadow-none dark:hover:bg-primary-400 dark:focus-visible:outline-primary-500',
         secondary:
             'bg-white text-gray-900 outline-1 -outline-offset-1 outline-gray-300 hover:bg-gray-50 focus-visible:outline-gray-900 dark:bg-white/10 dark:text-white dark:outline-white/20 dark:hover:bg-white/20 dark:focus-visible:outline-white',
         danger: 'bg-red-600 text-white hover:bg-red-500 focus-visible:outline-red-600 dark:bg-red-500 dark:shadow-none dark:hover:bg-red-400 dark:focus-visible:outline-red-500',

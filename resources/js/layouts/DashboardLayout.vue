@@ -70,7 +70,7 @@
                             alt=""
                             :class="['size-8 rounded-full outline -outline-offset-1', theme === 'dark' ? 'bg-gray-800 outline-white/10' : 'bg-gray-50 outline-black/5']"
                         />
-                        <div v-else class="size-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium text-sm outline -outline-offset-1 outline-black/5">
+                        <div v-else class="size-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-medium text-sm outline -outline-offset-1 outline-black/5">
                             {{ userInitials }}
                         </div>
                         <span aria-hidden="true">{{ user?.name }}</span>
@@ -102,7 +102,7 @@
                     alt=""
                     :class="['size-8 rounded-full outline -outline-offset-1', theme === 'dark' ? 'bg-gray-800 outline-white/10' : 'bg-gray-50 outline-black/5']"
                 />
-                <div v-else class="size-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium text-sm outline -outline-offset-1 outline-black/5">
+                <div v-else class="size-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-medium text-sm outline -outline-offset-1 outline-black/5">
                     {{ userInitials }}
                 </div>
             </div>

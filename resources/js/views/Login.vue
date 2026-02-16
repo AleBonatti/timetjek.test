@@ -3,7 +3,7 @@
     <!-- Theme Toggle Button -->
     <button
       type="button"
-      class="fixed top-4 right-4 rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:text-gray-500 dark:hover:text-gray-400"
+      class="fixed top-4 right-4 rounded-md p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-gray-500 dark:hover:text-gray-400"
       aria-label="Toggle theme"
       @click="toggleTheme"
     >
@@ -78,7 +78,7 @@
                 'block w-full rounded-md px-3 py-1.5 text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6',
                 errors.personnummer
                   ? 'outline-red-300 text-red-900 placeholder:text-red-300 focus:outline-red-500'
-                  : 'bg-white text-gray-900 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500',
+                  : 'bg-white text-gray-900 outline-gray-300 placeholder:text-gray-400 focus:outline-primary-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-primary-500',
               ]"
             >
           </div>
@@ -109,7 +109,7 @@
                 'block w-full rounded-md px-3 py-1.5 text-base outline-1 -outline-offset-1 focus:outline-2 focus:-outline-offset-2 sm:text-sm/6',
                 errors.password
                   ? 'outline-red-300 text-red-900 placeholder:text-red-300 focus:outline-red-500'
-                  : 'bg-white text-gray-900 outline-gray-300 placeholder:text-gray-400 focus:outline-indigo-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-indigo-500',
+                  : 'bg-white text-gray-900 outline-gray-300 placeholder:text-gray-400 focus:outline-primary-600 dark:bg-white/5 dark:text-white dark:outline-white/10 dark:placeholder:text-gray-500 dark:focus:outline-primary-500',
               ]"
             >
           </div>
