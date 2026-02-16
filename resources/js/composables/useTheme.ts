@@ -1,4 +1,5 @@
-import { ref, onMounted, watch } from 'vue';
+/// <reference lib="dom" />
+import { ref, onMounted, onUnmounted } from 'vue';
 
 export type Theme = 'light' | 'dark';
 
@@ -41,23 +42,28 @@ export function useTheme() {
         updateHtmlClass(theme.value);
     };
 
+    // Media query for system theme changes
+    let mediaQuery: MediaQueryList | null = null;
+    const handleChange = (e: MediaQueryListEvent) => {
+        if (!localStorage.getItem('theme')) {
+            theme.value = e.matches ? 'dark' : 'light';
+            updateHtmlClass(theme.value);
+        }
+    };
+
     onMounted(() => {
         initTheme();
 
         // Listen for system theme changes
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const handleChange = (e: MediaQueryListEvent) => {
-            if (!localStorage.getItem('theme')) {
-                theme.value = e.matches ? 'dark' : 'light';
-                updateHtmlClass(theme.value);
-            }
-        };
-
+        mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
         mediaQuery.addEventListener('change', handleChange);
+    });
 
-        return () => {
+    onUnmounted(() => {
+        // Clean up event listener
+        if (mediaQuery) {
             mediaQuery.removeEventListener('change', handleChange);
-        };
+        }
     });
 
     return {
