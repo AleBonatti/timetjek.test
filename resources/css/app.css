@@ -4,6 +4,21 @@
 
 @variant dark (&:is(.dark *));
 
+/* Base styles for html and body */
+html {
+    min-height: 100vh;
+    background-color: white;
+}
+
+html.dark {
+    background-color: rgb(17 24 39); /* gray-900 */
+}
+
+body {
+    min-height: 100vh;
+    background-color: inherit;
+}
+
 /* App specific styles */
 #app {
     min-height: 100vh;
