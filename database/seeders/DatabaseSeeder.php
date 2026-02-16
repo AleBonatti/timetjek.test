@@ -21,8 +21,19 @@ class DatabaseSeeder extends Seeder
             'password' => bcrypt('password'),
         ]);
 
-        // Create two additional random users
-        User::factory()->count(2)->create([
+        // User 2 - Secondary test user
+        User::create([
+            'personnummer' => '19900101-1234',
+            'name' => 'Anna Svensson',
+            'email' => 'anna.svensson@example.com',
+            'password' => bcrypt('password'),
+        ]);
+
+        // User 3 - Third test user
+        User::create([
+            'personnummer' => '19850523-5678',
+            'name' => 'Lars Johansson',
+            'email' => 'lars.johansson@example.com',
             'password' => bcrypt('password'),
         ]);
     }

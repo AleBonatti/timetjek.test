@@ -17,14 +17,7 @@ export default defineConfig({
                 },
             },
         }),
-        tailwindcss({
-            content: [
-                './resources/**/*.blade.php',
-                './resources/**/*.js',
-                './resources/**/*.ts',
-                './resources/**/*.vue',
-            ],
-        }),
+        tailwindcss(),
     ],
     resolve: {
         alias: {
