@@ -4,6 +4,7 @@ import { computed } from 'vue';
 interface Props {
     type?: 'button' | 'submit' | 'reset';
     variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'warning';
+    size?: 'sm' | 'md' | 'lg';
     loading?: boolean;
     disabled?: boolean;
     fullWidth?: boolean;
@@ -12,6 +13,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
     type: 'button',
     variant: 'primary',
+    size: 'sm',
     loading: false,
     disabled: false,
     fullWidth: false,
@@ -19,8 +21,23 @@ const props = withDefaults(defineProps<Props>(), {
 
 const isDisabled = computed(() => props.disabled || props.loading);
 
+const spinnerSizeClass = computed(() => {
+    const sizes = {
+        sm: 'h-5 w-5',
+        md: 'h-5 w-5',
+        lg: 'h-6 w-6',
+    };
+    return sizes[props.size];
+});
+
 const buttonClasses = computed(() => {
-    const base = 'flex justify-center items-center rounded-md px-4 py-3 text-base font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    const base = 'flex justify-center items-center rounded-md font-semibold shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+
+    const sizeClasses = {
+        sm: 'px-3 py-1.5 text-sm/6',
+        md: 'px-3.5 py-2 text-sm/6',
+        lg: 'px-4 py-3 text-base',
+    };
 
     const widthClass = props.fullWidth ? 'w-full' : '';
 
@@ -33,7 +50,7 @@ const buttonClasses = computed(() => {
         warning: 'bg-yellow-600 text-white hover:bg-yellow-500 focus-visible:outline-yellow-600 dark:bg-yellow-500 dark:shadow-none dark:hover:bg-yellow-400 dark:focus-visible:outline-yellow-500',
     };
 
-    return [base, widthClass, variantClasses[props.variant]].filter(Boolean).join(' ');
+    return [base, sizeClasses[props.size], widthClass, variantClasses[props.variant]].filter(Boolean).join(' ');
 });
 </script>
 
@@ -45,7 +62,7 @@ const buttonClasses = computed(() => {
   >
     <svg
       v-if="loading"
-      class="animate-spin h-6 w-6"
+      :class="['animate-spin', spinnerSizeClass]"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

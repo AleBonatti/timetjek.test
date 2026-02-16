@@ -1,8 +1,8 @@
 <template>
-    <div class="relative flex grow flex-col gap-y-5">
+    <div class="relative flex grow flex-col gap-y-5 pt-3">
         <div class="relative flex h-16 shrink-0 items-center">
-            <img src="/public/images/blue.svg" alt="Timecheck" class="h-8 w-auto dark:hidden" />
-            <img src="/public/images/logga-vit.svg" alt="Timecheck" class="h-8 w-auto hidden dark:block" />
+            <img v-if="theme === 'dark'" src="/images/logga-vit.svg" alt="Timetjek" class="h-8 w-auto" />
+            <img v-else src="/images/blue.svg" alt="Timetjek" class="h-8 w-auto" />
         </div>
         <nav class="relative flex flex-1 flex-col">
             <ul role="list" class="flex flex-1 flex-col gap-y-7">
