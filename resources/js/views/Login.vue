@@ -1,7 +1,5 @@
 <template>
-    <div
-        class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-white dark:bg-gray-900"
-    >
+    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 bg-white dark:bg-gray-900">
         <!-- Theme Toggle Button -->
         <button
             @click="toggleTheme"
@@ -10,14 +8,7 @@
             aria-label="Toggle theme"
         >
             <!-- Sun icon (show in dark mode) -->
-            <svg
-                v-if="theme === 'dark'"
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-            >
+            <svg v-if="theme === 'dark'" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -25,14 +16,7 @@
                 />
             </svg>
             <!-- Moon icon (show in light mode) -->
-            <svg
-                v-else
-                class="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-            >
+            <svg v-else class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -42,31 +26,15 @@
         </button>
 
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-            <img
-                :src="
-                    theme === 'dark'
-                        ? 'https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500'
-                        : 'https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600'
-                "
-                alt="Timetjek"
-                class="mx-auto h-10 w-auto"
-            />
-            <h2
-                class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white"
-            >
-                Sign in to your account
-            </h2>
+            <img src="/images/blue.svg" alt="Timecheck" class="mx-auto h-10 w-auto dark:hidden" />
+            <img src="/images/logga-vit.svg" alt="Timecheck" class="mx-auto h-10 w-auto hidden dark:block" />
+            <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">Sign in to your account</h2>
         </div>
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <form @submit.prevent="handleSubmit" class="space-y-6">
                 <div>
-                    <label
-                        for="personnummer"
-                        class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"
-                    >
-                        Personnummer
-                    </label>
+                    <label for="personnummer" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"> Personnummer </label>
                     <div class="mt-2">
                         <input
                             id="personnummer"
@@ -84,22 +52,14 @@
                             ]"
                         />
                     </div>
-                    <p
-                        v-if="errors.personnummer"
-                        class="mt-2 text-sm text-red-600 dark:text-red-400"
-                    >
+                    <p v-if="errors.personnummer" class="mt-2 text-sm text-red-600 dark:text-red-400">
                         {{ errors.personnummer }}
                     </p>
                 </div>
 
                 <div>
                     <div class="flex items-center justify-between">
-                        <label
-                            for="password"
-                            class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"
-                        >
-                            Password
-                        </label>
+                        <label for="password" class="block text-sm/6 font-medium text-gray-900 dark:text-gray-100"> Password </label>
                     </div>
                     <div class="mt-2">
                         <input
@@ -117,31 +77,23 @@
                             ]"
                         />
                     </div>
-                    <p
-                        v-if="errors.password"
-                        class="mt-2 text-sm text-red-600 dark:text-red-400"
-                    >
+                    <p v-if="errors.password" class="mt-2 text-sm text-red-600 dark:text-red-400">
                         {{ errors.password }}
                     </p>
                 </div>
 
-                <div
-                    v-if="errors.general"
-                    class="rounded-md bg-red-50 p-4 dark:bg-red-900/20"
-                >
-                    <p class="text-sm text-red-800 dark:text-red-400">
+                <div v-if="errors.general || (errors.apiErrors && errors.apiErrors.length > 0)" class="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
+                    <p v-if="errors.general" class="text-sm text-red-800 dark:text-red-400">
                         {{ errors.general }}
                     </p>
+                    <div v-if="errors.apiErrors && errors.apiErrors.length > 0" class="space-y-1" :class="{ 'mt-2': errors.general }">
+                        <p v-for="(error, index) in errors.apiErrors" :key="index" class="text-sm text-red-800 dark:text-red-400">
+                            {{ error }}
+                        </p>
+                    </div>
                 </div>
 
-                <BaseButton
-                    type="submit"
-                    :loading="loading"
-                    :disabled="loading"
-                    full-width
-                >
-                    Sign in
-                </BaseButton>
+                <BaseButton type="submit" :loading="loading" :disabled="loading" full-width> Sign in </BaseButton>
             </form>
         </div>
     </div>
@@ -150,6 +102,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { isAxiosError, type AxiosError } from 'axios';
 import { useAuthStore } from '@/stores/auth';
 import { useTheme } from '@/composables/useTheme';
 import BaseButton from '@/components/BaseButton.vue';
@@ -168,6 +121,7 @@ const errors = ref<{
     personnummer?: string;
     password?: string;
     general?: string;
+    apiErrors?: string[];
 }>({});
 
 const loading = ref(false);
@@ -191,8 +145,7 @@ const handleSubmit = async () => {
 
     // Validate personnummer
     if (!validatePersonnummer(form.value.personnummer)) {
-        errors.value.personnummer =
-            'Please enter a valid personnummer (YYYYMMDD-XXXX)';
+        errors.value.personnummer = 'Please enter a valid personnummer (YYYYMMDD-XXXX)';
         return;
     }
 
@@ -201,6 +154,9 @@ const handleSubmit = async () => {
     try {
         // Get CSRF cookie
         await axios.get('/sanctum/csrf-cookie');
+
+        // Simulate network latency
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Attempt login
         const response = await axios.post('/api/login', {
@@ -213,27 +169,46 @@ const handleSubmit = async () => {
 
         // Redirect to dashboard
         router.push({ name: 'dashboard' });
-    } catch (error: unknown) {
-        if (axios.isAxiosError(error) && error.response) {
-            if (error.response.status === 422) {
+    } catch (err: unknown) {
+        if (isAxiosError(err)) {
+            const error = err as AxiosError<Record<string, unknown>>;
+            const apiErrors: string[] = [];
+            const responseData = error.response?.data;
+
+            if (error.response?.status === 422) {
                 // Validation errors
-                const validationErrors = error.response.data.errors;
+                const validationErrors = responseData?.errors as Record<string, string[]> | undefined;
+
                 if (validationErrors) {
-                    errors.value = {
-                        personnummer: validationErrors.personnummer?.[0],
-                        password: validationErrors.password?.[0],
-                    };
+                    // Collect all validation error messages
+                    Object.keys(validationErrors).forEach((key) => {
+                        validationErrors[key].forEach((msg: string) => {
+                            apiErrors.push(msg);
+                        });
+                    });
                 }
-            } else if (error.response.status === 401) {
+            } else if (error.response?.status === 401) {
                 // Authentication failed
-                errors.value.general =
-                    'Invalid credentials. Please check your personnummer and password.';
+                apiErrors.push('Invalid credentials. Please check your personnummer and password.');
             } else {
-                errors.value.general =
-                    'An error occurred. Please try again later.';
+                apiErrors.push('An error occurred. Please try again later.');
+            }
+
+            // Add any general error message from the response if not already added
+            if (apiErrors.length === 0) {
+                if (responseData?.message && typeof responseData.message === 'string') {
+                    apiErrors.push(responseData.message);
+                } else if (responseData?.error && typeof responseData.error === 'string') {
+                    apiErrors.push(responseData.error);
+                }
+            }
+
+            // Store all API errors
+            if (apiErrors.length > 0) {
+                errors.value.apiErrors = apiErrors;
             }
         } else {
-            errors.value.general = 'An unexpected error occurred.';
+            errors.value.apiErrors = ['An unexpected error occurred.'];
         }
     } finally {
         loading.value = false;
