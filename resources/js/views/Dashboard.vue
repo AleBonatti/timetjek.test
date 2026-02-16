@@ -155,13 +155,21 @@ const getCurrentPosition = (): Promise<{ latitude: number; longitude: number } |
 
 const fetchTodayTimeEntries = async () => {
     isLoading.value = true;
+    const startTime = Date.now();
+
     try {
         const response = await axios.get('/api/time-entries/today');
         todayTimeEntries.value = response.data.time_entries;
     } catch (error) {
         console.error('Error fetching time entries:', error);
     } finally {
-        isLoading.value = false;
+        // Ensure loading state is visible for at least 500ms
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, 500 - elapsedTime);
+
+        setTimeout(() => {
+            isLoading.value = false;
+        }, remainingTime);
     }
 };
 

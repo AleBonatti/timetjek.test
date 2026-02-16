@@ -14,8 +14,10 @@ export interface TimeEntry {
     user_id: number;
     clock_in: string;
     clock_out: string | null;
-    latitude: number | null;
-    longitude: number | null;
+    clock_in_latitude: number | null;
+    clock_in_longitude: number | null;
+    clock_out_latitude: number | null;
+    clock_out_longitude: number | null;
     notes: string | null;
     created_at: string;
     updated_at: string;

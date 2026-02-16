@@ -11,16 +11,20 @@ class TimeEntry extends Model
         'user_id',
         'clock_in',
         'clock_out',
-        'latitude',
-        'longitude',
+        'clock_in_latitude',
+        'clock_in_longitude',
+        'clock_out_latitude',
+        'clock_out_longitude',
         'notes',
     ];
 
     protected $casts = [
         'clock_in' => 'datetime',
         'clock_out' => 'datetime',
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
+        'clock_in_latitude' => 'decimal:8',
+        'clock_in_longitude' => 'decimal:8',
+        'clock_out_latitude' => 'decimal:8',
+        'clock_out_longitude' => 'decimal:8',
     ];
 
     /**

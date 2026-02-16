@@ -16,8 +16,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->dateTime('clock_in');
             $table->dateTime('clock_out')->nullable();
-            $table->decimal('latitude', 10, 8)->nullable();
-            $table->decimal('longitude', 11, 8)->nullable();
+            $table->decimal('clock_in_latitude', 10, 8)->nullable();
+            $table->decimal('clock_in_longitude', 11, 8)->nullable();
+            $table->decimal('clock_out_latitude', 10, 8)->nullable();
+            $table->decimal('clock_out_longitude', 11, 8)->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
 

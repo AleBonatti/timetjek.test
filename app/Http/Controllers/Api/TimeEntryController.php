@@ -35,9 +35,9 @@ class TimeEntryController extends Controller
 
         $timeEntry = TimeEntry::create([
             'user_id' => $request->user()->id,
-            'clock_in' => now()->startOfMinute(),
-            'latitude' => $validated['latitude'] ?? null,
-            'longitude' => $validated['longitude'] ?? null,
+            'clock_in' => now(),
+            'clock_in_latitude' => $validated['latitude'] ?? null,
+            'clock_in_longitude' => $validated['longitude'] ?? null,
         ]);
 
         return response()->json([
@@ -69,11 +69,10 @@ class TimeEntryController extends Controller
             ], 404);
         }
 
-        // Update clock_out time, but keep the clock_in location
-        // Store clock_out location in the same latitude/longitude fields
-        // (or you could add separate clock_out_latitude/longitude columns)
         $timeEntry->update([
-            'clock_out' => now()->startOfMinute(),
+            'clock_out' => now(),
+            'clock_out_latitude' => $validated['latitude'] ?? null,
+            'clock_out_longitude' => $validated['longitude'] ?? null,
         ]);
 
         return response()->json([
