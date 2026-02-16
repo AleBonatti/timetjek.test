@@ -28,9 +28,16 @@ class TimeEntryController extends Controller
      */
     public function clockIn(Request $request)
     {
+        $validated = $request->validate([
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+        ]);
+
         $timeEntry = TimeEntry::create([
             'user_id' => $request->user()->id,
             'clock_in' => now()->startOfMinute(),
+            'latitude' => $validated['latitude'] ?? null,
+            'longitude' => $validated['longitude'] ?? null,
         ]);
 
         return response()->json([
@@ -44,6 +51,11 @@ class TimeEntryController extends Controller
      */
     public function clockOut(Request $request)
     {
+        $validated = $request->validate([
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+        ]);
+
         // Find the latest open time entry for today
         $timeEntry = TimeEntry::where('user_id', $request->user()->id)
             ->whereDate('clock_in', today())
@@ -57,6 +69,9 @@ class TimeEntryController extends Controller
             ], 404);
         }
 
+        // Update clock_out time, but keep the clock_in location
+        // Store clock_out location in the same latitude/longitude fields
+        // (or you could add separate clock_out_latitude/longitude columns)
         $timeEntry->update([
             'clock_out' => now()->startOfMinute(),
         ]);

@@ -161,6 +161,48 @@ const canClockOut = computed(() => {
   return latestEntry.clock_out === null;
 });
 
+const getCurrentPosition = (): Promise<{ latitude: number; longitude: number } | null> => {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      locationWarning.value = 'Geolocation is not supported by your browser. Time entries will be recorded without location data.';
+      resolve(null);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        locationWarning.value = null;
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+      },
+      (error) => {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            locationWarning.value = 'Location access denied. Please enable location permissions in your browser settings to record your location with time entries.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            locationWarning.value = 'Location information is unavailable. Time entries will be recorded without location data.';
+            break;
+          case error.TIMEOUT:
+            locationWarning.value = 'Location request timed out. Time entries will be recorded without location data.';
+            break;
+          default:
+            locationWarning.value = 'An unknown error occurred while getting your location. Time entries will be recorded without location data.';
+            break;
+        }
+        resolve(null);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  });
+};
+
 const fetchTodayTimeEntries = async () => {
   isLoading.value = true;
   try {
@@ -176,7 +218,11 @@ const fetchTodayTimeEntries = async () => {
 const handleClockIn = async () => {
   isClockingIn.value = true;
   try {
-    await axios.post('/api/time-entries/clock-in');
+    const position = await getCurrentPosition();
+    await axios.post('/api/time-entries/clock-in', {
+      latitude: position?.latitude || null,
+      longitude: position?.longitude || null,
+    });
     await fetchTodayTimeEntries();
   } catch (error) {
     console.error('Error clocking in:', error);
@@ -188,7 +234,11 @@ const handleClockIn = async () => {
 const handleClockOut = async () => {
   isClockingOut.value = true;
   try {
-    await axios.post('/api/time-entries/clock-out');
+    const position = await getCurrentPosition();
+    await axios.post('/api/time-entries/clock-out', {
+      latitude: position?.latitude || null,
+      longitude: position?.longitude || null,
+    });
     await fetchTodayTimeEntries();
   } catch (error) {
     console.error('Error clocking out:', error);
@@ -224,8 +274,20 @@ const getLiveDuration = (clockIn: string) => {
   return `${hours}h ${minutes}m ${seconds}s`;
 };
 
-onMounted(() => {
+onMounted(async () => {
   fetchTodayTimeEntries();
+
+  // Check geolocation permission
+  if (navigator.permissions) {
+    try {
+      const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
+      if (permissionStatus.state === 'denied') {
+        locationWarning.value = 'Location access denied. Please enable location permissions in your browser settings to record your location with time entries.';
+      }
+    } catch (error) {
+      // Permissions API not supported, geolocation will be checked on first use
+    }
+  }
 
   // Update current time every second for live duration
   timerInterval = setInterval(() => {
