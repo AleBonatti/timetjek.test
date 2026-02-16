@@ -3,6 +3,7 @@ import pluginVue from 'eslint-plugin-vue';
 import ts from '@typescript-eslint/eslint-plugin';
 import parser from '@typescript-eslint/parser';
 import vueParser from 'vue-eslint-parser';
+import globals from 'globals';
 
 export default [
     js.configs.recommended,
@@ -15,6 +16,10 @@ export default [
                 parser: parser,
                 ecmaVersion: 'latest',
                 sourceType: 'module',
+            },
+            globals: {
+                ...globals.browser,
+                ...globals.es2021,
             },
         },
         plugins: {
