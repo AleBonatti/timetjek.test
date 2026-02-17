@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\UpdatePasswordRequest;
+use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,13 +17,8 @@ class AuthController extends Controller
     /**
      * Handle login request.
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'personnummer' => 'required|string',
-            'password' => 'required|string',
-        ]);
-
         // Find user by personnummer
         $user = User::where('personnummer', $request->personnummer)->first();
 
@@ -65,13 +63,8 @@ class AuthController extends Controller
     /**
      * Update user password.
      */
-    public function updatePassword(Request $request)
+    public function updatePassword(UpdatePasswordRequest $request)
     {
-        $request->validate([
-            'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8|confirmed',
-        ]);
-
         $user = $request->user();
 
         // Verify current password
@@ -94,14 +87,9 @@ class AuthController extends Controller
     /**
      * Update user profile.
      */
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
         $user = $request->user();
-
-        $request->validate([
-            'name' => 'required|string|min:3|max:255',
-            'email' => 'required|email|min:3|max:255|unique:users,email,' . $user->id,
-        ]);
 
         $user->update([
             'name' => $request->name,
