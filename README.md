@@ -164,7 +164,7 @@ The application will be available at `http://localhost:8000`. Update .env accord
 
 ### Logging In
 
-1. Navigate to `http://localhost:8000`
+1. Navigate to `https://timetjek.test`
 2. Enter a personnummer (e.g., `19900101-1239`)
 3. Enter the password (`password` for test users)
 4. Click "Sign in"
@@ -235,11 +235,11 @@ php artisan test --stop-on-failure
 
 ### Test Coverage
 
-| Suite | File | Tests | What's covered |
-|-------|------|-------|----------------|
-| Unit | `TimeEntryModelTest` | 12 | `isActive()`, `getDurationInMinutes()`, `getFormattedDuration()`, `overlaps()` |
-| Feature | `AuthTest` | 20 | Login (valid, wrong password, unknown user), Luhn format validation, logout, rate limiting (429), profile update, password update |
-| Feature | `TimeEntryTest` | 31 | Clock in/out, GPS coordinates, working hours boundaries (06:00–23:00), overlap detection (4 scenarios), open-entry rules, CRUD authorization, data isolation |
+| Suite   | File                 | Tests | What's covered                                                                                                                                               |
+| ------- | -------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Unit    | `TimeEntryModelTest` | 12    | `isActive()`, `getDurationInMinutes()`, `getFormattedDuration()`, `overlaps()`                                                                               |
+| Feature | `AuthTest`           | 20    | Login (valid, wrong password, unknown user), Luhn format validation, logout, rate limiting (429), profile update, password update                            |
+| Feature | `TimeEntryTest`      | 31    | Clock in/out, GPS coordinates, working hours boundaries (06:00–23:00), overlap detection (4 scenarios), open-entry rules, CRUD authorization, data isolation |
 
 ### Personnummer Validation
 
@@ -324,26 +324,26 @@ All endpoints are prefixed with `/api/v1/`. Protected routes require an active s
 
 ### Authentication
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| `POST` | `/api/v1/login` | Public | Login with personnummer and password |
-| `POST` | `/api/v1/logout` | Required | Logout current user |
-| `GET` | `/api/v1/user` | Required | Get authenticated user |
-| `PUT` | `/api/v1/user/password` | Required | Update password |
-| `PUT` | `/api/v1/user/profile` | Required | Update profile |
+| Method | Endpoint                | Auth     | Description                          |
+| ------ | ----------------------- | -------- | ------------------------------------ |
+| `POST` | `/api/v1/login`         | Public   | Login with personnummer and password |
+| `POST` | `/api/v1/logout`        | Required | Logout current user                  |
+| `GET`  | `/api/v1/user`          | Required | Get authenticated user               |
+| `PUT`  | `/api/v1/user/password` | Required | Update password                      |
+| `PUT`  | `/api/v1/user/profile`  | Required | Update profile                       |
 
 ### Time Entries
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1/time-entries/today` | Get today's entries |
-| `GET` | `/api/v1/time-entries/current-week` | Get current week's entries |
-| `GET` | `/api/v1/time-entries/current-month` | Get current month's entries |
-| `GET` | `/api/v1/time-entries/date-range?from=YYYY-MM-DD&to=YYYY-MM-DD` | Get entries for a custom date range |
-| `POST` | `/api/v1/time-entries/clock-in` | Clock in (optional GPS coordinates) |
-| `POST` | `/api/v1/time-entries/clock-out` | Clock out (optional GPS coordinates) |
-| `PUT` | `/api/v1/time-entries/{id}` | Update a time entry (owner only) |
-| `DELETE` | `/api/v1/time-entries/{id}` | Delete a time entry (owner only) |
+| Method   | Endpoint                                                        | Description                          |
+| -------- | --------------------------------------------------------------- | ------------------------------------ |
+| `GET`    | `/api/v1/time-entries/today`                                    | Get today's entries                  |
+| `GET`    | `/api/v1/time-entries/current-week`                             | Get current week's entries           |
+| `GET`    | `/api/v1/time-entries/current-month`                            | Get current month's entries          |
+| `GET`    | `/api/v1/time-entries/date-range?from=YYYY-MM-DD&to=YYYY-MM-DD` | Get entries for a custom date range  |
+| `POST`   | `/api/v1/time-entries/clock-in`                                 | Clock in (optional GPS coordinates)  |
+| `POST`   | `/api/v1/time-entries/clock-out`                                | Clock out (optional GPS coordinates) |
+| `PUT`    | `/api/v1/time-entries/{id}`                                     | Update a time entry (owner only)     |
+| `DELETE` | `/api/v1/time-entries/{id}`                                     | Delete a time entry (owner only)     |
 
 > The login endpoint is rate-limited to **5 requests per minute** per IP.
 
