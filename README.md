@@ -119,7 +119,7 @@ php artisan db:seed
 
 **Test Users:**
 
-- Personnummer: `19900101-1234`, Password: `password`
+- Personnummer: `19900101-1239`, Password: `password`
 - Personnummer: `19850523-5678`, Password: `password`
 
 ### 8. Build Frontend Assets
@@ -165,7 +165,7 @@ The application will be available at `http://localhost:8000`. Update .env accord
 ### Logging In
 
 1. Navigate to `http://localhost:8000`
-2. Enter a personnummer (e.g., `19900101-1234`)
+2. Enter a personnummer (e.g., `19900101-1239`)
 3. Enter the password (`password` for test users)
 4. Click "Sign in"
 
@@ -187,6 +187,63 @@ The application will be available at `http://localhost:8000`. Update .env accord
 1. Navigate to "Settings" from the sidebar
 2. Update your name and email in the Profile section
 3. Change your password in the Password section
+
+## Testing
+
+The test suite uses PHPUnit and covers both unit and feature (HTTP) levels. Tests run against a **dedicated test database** to keep your development data intact.
+
+### Test Database Setup
+
+Create a separate database for tests (the suite uses `timetjek_test` on MariaDB port `3307` by default — adjust `phpunit.xml` to match your setup):
+
+```bash
+mysql -u root -p -e "CREATE DATABASE timetjek_test;"
+```
+
+The test environment is configured in `phpunit.xml`:
+
+```xml
+<env name="DB_CONNECTION" value="mysql"/>
+<env name="DB_HOST" value="127.0.0.1"/>
+<env name="DB_PORT" value="3307"/>
+<env name="DB_DATABASE" value="timetjek_test"/>
+```
+
+> The test suite uses `RefreshDatabase`, which runs migrations and rolls back after each test. **Only the test database is affected** — your development database is never touched.
+
+### Running Tests
+
+Run the full suite:
+
+```bash
+php artisan test
+```
+
+Run a specific test file:
+
+```bash
+php artisan test tests/Feature/AuthTest.php
+php artisan test tests/Feature/TimeEntryTest.php
+php artisan test tests/Unit/TimeEntryModelTest.php
+```
+
+Stop on first failure:
+
+```bash
+php artisan test --stop-on-failure
+```
+
+### Test Coverage
+
+| Suite | File | Tests | What's covered |
+|-------|------|-------|----------------|
+| Unit | `TimeEntryModelTest` | 12 | `isActive()`, `getDurationInMinutes()`, `getFormattedDuration()`, `overlaps()` |
+| Feature | `AuthTest` | 20 | Login (valid, wrong password, unknown user), Luhn format validation, logout, rate limiting (429), profile update, password update |
+| Feature | `TimeEntryTest` | 31 | Clock in/out, GPS coordinates, working hours boundaries (06:00–23:00), overlap detection (4 scenarios), open-entry rules, CRUD authorization, data isolation |
+
+### Personnummer Validation
+
+The login endpoint validates personnummer using the **Luhn algorithm** (the same check used client-side). Both the full 12-digit format (`19900101-1239`) and the short 10-digit format (`900101-1239`) are accepted by the validator.
 
 ## Development
 
@@ -215,18 +272,32 @@ npm run format
 
 ```
 ├── app/
+│   ├── Actions/
+│   │   └── TimeEntry/
+│   │       ├── ClockInAction.php           # Clock-in business logic
+│   │       ├── ClockOutAction.php          # Clock-out business logic
+│   │       ├── UpdateTimeEntryAction.php   # Update + validation logic
+│   │       └── DeleteTimeEntryAction.php   # Delete logic
 │   ├── Http/
-│   │   └── Controllers/
-│   │       └── Api/
-│   │           ├── AuthController.php      # Authentication endpoints
-│   │           └── TimeEntryController.php # Time entry management
-│   └── Models/
-│       ├── User.php                        # User model
-│       └── TimeEntry.php                   # Time entry model
+│   │   ├── Controllers/
+│   │   │   └── Api/
+│   │   │       ├── AuthController.php      # Authentication endpoints
+│   │   │       └── TimeEntryController.php # Time entry endpoints
+│   │   └── Requests/
+│   │       ├── Auth/                       # Login, password, profile form requests
+│   │       └── TimeEntry/                  # Clock in/out, update, date range form requests
+│   ├── Models/
+│   │   ├── User.php
+│   │   └── TimeEntry.php
+│   └── Policies/
+│       └── TimeEntryPolicy.php             # Ownership authorization
 ├── database/
-│   ├── migrations/                         # Database migrations
+│   ├── factories/
+│   │   ├── UserFactory.php
+│   │   └── TimeEntryFactory.php
+│   ├── migrations/
 │   └── seeders/
-│       └── UserSeeder.php                  # Test user seeder
+│       └── UserSeeder.php
 ├── resources/
 │   ├── js/
 │   │   ├── components/                     # Reusable Vue components
@@ -235,32 +306,46 @@ npm run format
 │   │   ├── stores/                         # Pinia stores
 │   │   └── router/                         # Vue Router configuration
 │   └── css/
-│       └── app.css                         # Tailwind CSS configuration
-└── routes/
-    ├── api.php                             # API routes
-    └── web.php                             # Web routes
+│       └── app.css                         # Tailwind CSS + theme configuration
+├── routes/
+│   ├── api.php                             # API routes (prefixed /api/v1)
+│   └── web.php
+└── tests/
+    ├── Feature/
+    │   ├── AuthTest.php                    # Login, logout, profile, password, rate limiting
+    │   └── TimeEntryTest.php               # Clock in/out, CRUD, overlap, authorization
+    └── Unit/
+        └── TimeEntryModelTest.php          # Model methods: overlaps(), duration, etc.
 ```
 
 ## API Endpoints
 
+All endpoints are prefixed with `/api/v1/`. Protected routes require an active session cookie (Sanctum SPA authentication).
+
 ### Authentication
 
-- `POST /api/login` - Login with personnummer and password
-- `POST /api/logout` - Logout current user
-- `GET /api/user` - Get authenticated user
-- `PUT /api/user/password` - Update password
-- `PUT /api/user/profile` - Update profile
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/v1/login` | Public | Login with personnummer and password |
+| `POST` | `/api/v1/logout` | Required | Logout current user |
+| `GET` | `/api/v1/user` | Required | Get authenticated user |
+| `PUT` | `/api/v1/user/password` | Required | Update password |
+| `PUT` | `/api/v1/user/profile` | Required | Update profile |
 
 ### Time Entries
 
-- `GET /api/time-entries/today` - Get today's entries
-- `GET /api/time-entries/current-week` - Get current week's entries
-- `GET /api/time-entries/current-month` - Get current month's entries
-- `GET /api/time-entries/date-range` - Get entries for date range
-- `POST /api/time-entries/clock-in` - Clock in
-- `POST /api/time-entries/clock-out` - Clock out
-- `PUT /api/time-entries/{id}` - Update time entry
-- `DELETE /api/time-entries/{id}` - Delete time entry
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/time-entries/today` | Get today's entries |
+| `GET` | `/api/v1/time-entries/current-week` | Get current week's entries |
+| `GET` | `/api/v1/time-entries/current-month` | Get current month's entries |
+| `GET` | `/api/v1/time-entries/date-range?from=YYYY-MM-DD&to=YYYY-MM-DD` | Get entries for a custom date range |
+| `POST` | `/api/v1/time-entries/clock-in` | Clock in (optional GPS coordinates) |
+| `POST` | `/api/v1/time-entries/clock-out` | Clock out (optional GPS coordinates) |
+| `PUT` | `/api/v1/time-entries/{id}` | Update a time entry (owner only) |
+| `DELETE` | `/api/v1/time-entries/{id}` | Delete a time entry (owner only) |
+
+> The login endpoint is rate-limited to **5 requests per minute** per IP.
 
 ## Configuration
 

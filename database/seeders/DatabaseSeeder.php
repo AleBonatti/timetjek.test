@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
 
         // User 2 - Secondary test user
         User::create([
-            'personnummer' => '19900101-1234',
+            'personnummer' => '19900101-1239',
             'name' => 'Anna Svensson',
             'email' => 'anna.svensson@example.com',
             'password' => bcrypt('password'),
