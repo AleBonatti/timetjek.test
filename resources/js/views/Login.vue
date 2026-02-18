@@ -159,7 +159,7 @@ const handleSubmit = async () => {
         await new Promise((resolve) => setTimeout(resolve, 500));
 
         // Attempt login
-        const response = await axios.post('/api/login', {
+        const response = await axios.post('/login', {
             personnummer: form.value.personnummer,
             password: form.value.password,
         });

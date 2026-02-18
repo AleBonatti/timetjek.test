@@ -20,7 +20,7 @@ class TimeEntryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/time-entries/clock-in');
+        $response = $this->actingAs($user)->postJson('/api/v1/time-entries/clock-in');
 
         $response->assertStatus(201)
             ->assertJsonPath('message', 'Clocked in successfully')
@@ -36,7 +36,7 @@ class TimeEntryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/time-entries/clock-in', [
+        $response = $this->actingAs($user)->postJson('/api/v1/time-entries/clock-in', [
             'latitude' => 59.3293,
             'longitude' => 18.0686,
         ]);
@@ -53,7 +53,7 @@ class TimeEntryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/time-entries/clock-in');
+        $response = $this->actingAs($user)->postJson('/api/v1/time-entries/clock-in');
 
         $response->assertStatus(201);
         $this->assertDatabaseHas('time_entries', [
@@ -67,7 +67,7 @@ class TimeEntryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/time-entries/clock-in', [
+        $response = $this->actingAs($user)->postJson('/api/v1/time-entries/clock-in', [
             'latitude' => 999,
             'longitude' => 999,
         ]);
@@ -78,7 +78,7 @@ class TimeEntryTest extends TestCase
 
     public function test_unauthenticated_user_cannot_clock_in(): void
     {
-        $response = $this->postJson('/api/time-entries/clock-in');
+        $response = $this->postJson('/api/v1/time-entries/clock-in');
 
         $response->assertStatus(401);
     }
@@ -92,7 +92,7 @@ class TimeEntryTest extends TestCase
         $user = User::factory()->create();
         TimeEntry::factory()->open()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->postJson('/api/time-entries/clock-out');
+        $response = $this->actingAs($user)->postJson('/api/v1/time-entries/clock-out');
 
         $response->assertStatus(200)
             ->assertJsonPath('message', 'Clocked out successfully');
@@ -107,7 +107,7 @@ class TimeEntryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->postJson('/api/time-entries/clock-out');
+        $response = $this->actingAs($user)->postJson('/api/v1/time-entries/clock-out');
 
         $response->assertStatus(404)
             ->assertJsonPath('message', 'No open time entry found');
@@ -118,7 +118,7 @@ class TimeEntryTest extends TestCase
         $user = User::factory()->create();
         TimeEntry::factory()->open()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->postJson('/api/time-entries/clock-out', [
+        $response = $this->actingAs($user)->postJson('/api/v1/time-entries/clock-out', [
             'latitude' => 59.3293,
             'longitude' => 18.0686,
         ]);
@@ -151,7 +151,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => now()->subDay()->setTime(10, 0),
         ]);
 
-        $response = $this->actingAs($user)->getJson('/api/time-entries/today');
+        $response = $this->actingAs($user)->getJson('/api/v1/time-entries/today');
 
         $response->assertStatus(200)
             ->assertJsonCount(1, 'time_entries');
@@ -168,7 +168,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => now()->setTime(10, 0),
         ]);
 
-        $response = $this->actingAs($user)->getJson('/api/time-entries/today');
+        $response = $this->actingAs($user)->getJson('/api/v1/time-entries/today');
 
         $response->assertStatus(200)
             ->assertJsonCount(0, 'time_entries');
@@ -193,7 +193,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => Carbon::parse('2026-02-05 10:00'),
         ]);
 
-        $response = $this->actingAs($user)->getJson('/api/time-entries/date-range?from=2026-02-08&to=2026-02-15');
+        $response = $this->actingAs($user)->getJson('/api/v1/time-entries/date-range?from=2026-02-08&to=2026-02-15');
 
         $response->assertStatus(200)
             ->assertJsonCount(1, 'time_entries');
@@ -203,7 +203,7 @@ class TimeEntryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson('/api/time-entries/date-range');
+        $response = $this->actingAs($user)->getJson('/api/v1/time-entries/date-range');
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['from', 'to']);
@@ -213,7 +213,7 @@ class TimeEntryTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson('/api/time-entries/date-range?from=2026-02-15&to=2026-02-10');
+        $response = $this->actingAs($user)->getJson('/api/v1/time-entries/date-range?from=2026-02-15&to=2026-02-10');
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['to']);
@@ -232,7 +232,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => Carbon::today()->setTime(10, 0),
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(8, 0)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(9, 0)->toDateTimeString(),
             'notes' => 'Updated note',
@@ -256,7 +256,7 @@ class TimeEntryTest extends TestCase
         $user = User::factory()->create();
         $entry = TimeEntry::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(5, 59)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(10, 0)->toDateTimeString(),
         ]);
@@ -270,7 +270,7 @@ class TimeEntryTest extends TestCase
         $user = User::factory()->create();
         $entry = TimeEntry::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(23, 1)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(23, 30)->toDateTimeString(),
         ]);
@@ -284,7 +284,7 @@ class TimeEntryTest extends TestCase
         $user = User::factory()->create();
         $entry = TimeEntry::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(6, 0)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(5, 59)->toDateTimeString(),
         ]);
@@ -298,7 +298,7 @@ class TimeEntryTest extends TestCase
         $user = User::factory()->create();
         $entry = TimeEntry::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(9, 0)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(23, 30)->toDateTimeString(),
         ]);
@@ -312,7 +312,7 @@ class TimeEntryTest extends TestCase
         $user = User::factory()->create();
         $entry = TimeEntry::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(6, 0)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(10, 0)->toDateTimeString(),
         ]);
@@ -329,7 +329,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => Carbon::yesterday()->setTime(17, 0),
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::yesterday()->setTime(9, 0)->toDateTimeString(),
             'clock_out' => Carbon::yesterday()->setTime(23, 0)->toDateTimeString(),
         ]);
@@ -359,7 +359,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => Carbon::today()->setTime(12, 0),
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(9, 30)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(10, 30)->toDateTimeString(),
         ]);
@@ -384,7 +384,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => Carbon::today()->setTime(14, 0),
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(10, 0)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(12, 0)->toDateTimeString(),
         ]);
@@ -409,7 +409,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => Carbon::today()->setTime(14, 0),
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(9, 0)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(12, 0)->toDateTimeString(),
         ]);
@@ -434,7 +434,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => Carbon::today()->setTime(12, 0),
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(10, 0)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(11, 0)->toDateTimeString(),
         ]);
@@ -452,7 +452,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => Carbon::today()->setTime(10, 0),
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(9, 0)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(10, 0)->toDateTimeString(),
         ]);
@@ -482,7 +482,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => Carbon::today()->setTime(11, 0),
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(10, 0)->toDateTimeString(),
             'clock_out' => null,
         ]);
@@ -508,7 +508,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => Carbon::today()->setTime(11, 0),
         ]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(8, 0)->toDateTimeString(),
             'clock_out' => null,
         ]);
@@ -528,7 +528,7 @@ class TimeEntryTest extends TestCase
 
         $entry = TimeEntry::factory()->create(['user_id' => $otherUser->id]);
 
-        $response = $this->actingAs($user)->putJson("/api/time-entries/{$entry->id}", [
+        $response = $this->actingAs($user)->putJson("/api/v1/time-entries/{$entry->id}", [
             'clock_in' => Carbon::today()->setTime(9, 0)->toDateTimeString(),
             'clock_out' => Carbon::today()->setTime(10, 0)->toDateTimeString(),
         ]);
@@ -543,7 +543,7 @@ class TimeEntryTest extends TestCase
 
         $entry = TimeEntry::factory()->create(['user_id' => $otherUser->id]);
 
-        $response = $this->actingAs($user)->deleteJson("/api/time-entries/{$entry->id}");
+        $response = $this->actingAs($user)->deleteJson("/api/v1/time-entries/{$entry->id}");
 
         $response->assertStatus(403);
     }
@@ -557,7 +557,7 @@ class TimeEntryTest extends TestCase
         $user = User::factory()->create();
         $entry = TimeEntry::factory()->create(['user_id' => $user->id]);
 
-        $response = $this->actingAs($user)->deleteJson("/api/time-entries/{$entry->id}");
+        $response = $this->actingAs($user)->deleteJson("/api/v1/time-entries/{$entry->id}");
 
         $response->assertStatus(200)
             ->assertJsonPath('message', 'Time entry deleted successfully');
@@ -581,7 +581,7 @@ class TimeEntryTest extends TestCase
             'clock_out' => now()->setTime(10, 0),
         ]);
 
-        $response = $this->actingAs($user)->getJson('/api/time-entries/today');
+        $response = $this->actingAs($user)->getJson('/api/v1/time-entries/today');
 
         $response->assertStatus(200)
             ->assertJsonCount(0, 'time_entries');

@@ -234,11 +234,11 @@ const fetchTimeEntries = async () => {
         let params = {};
 
         if (viewMode.value === 'week') {
-            endpoint = '/api/time-entries/current-week';
+            endpoint = '/time-entries/current-week';
         } else if (viewMode.value === 'month') {
-            endpoint = '/api/time-entries/current-month';
+            endpoint = '/time-entries/current-month';
         } else if (viewMode.value === 'custom') {
-            endpoint = '/api/time-entries/date-range';
+            endpoint = '/time-entries/date-range';
             params = {
                 from: dateRange.value.from,
                 to: dateRange.value.to,
@@ -404,7 +404,7 @@ const saveEntry = async () => {
             return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         };
 
-        const response = await axios.put(`/api/time-entries/${editingEntry.value.id}`, {
+        const response = await axios.put(`/time-entries/${editingEntry.value.id}`, {
             clock_in: formatDateTime(newClockIn),
             clock_out: newClockOut ? formatDateTime(newClockOut) : null,
             notes: editForm.value.notes || null,
@@ -454,7 +454,7 @@ const deleteEntry = async () => {
     editErrors.value = {};
 
     try {
-        await axios.delete(`/api/time-entries/${editingEntry.value.id}`);
+        await axios.delete(`/time-entries/${editingEntry.value.id}`);
 
         // Remove the entry from the list
         const index = timeEntries.value.findIndex((e) => e.id === editingEntry.value!.id);

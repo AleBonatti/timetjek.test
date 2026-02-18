@@ -266,7 +266,7 @@ const handleProfileSubmit = async () => {
     let successMsg: string | null = null;
 
     try {
-        const response = await axios.put('/api/user/profile', profileForm.value);
+        const response = await axios.put('/user/profile', profileForm.value);
         successMsg = response.data.message;
 
         // Update the user in auth store
@@ -322,7 +322,7 @@ const handleSubmit = async () => {
     let successMsg: string | null = null;
 
     try {
-        const response = await axios.put('/api/user/password', form.value);
+        const response = await axios.put('/user/password', form.value);
         successMsg = response.data.message;
 
         // Reset form after successful update

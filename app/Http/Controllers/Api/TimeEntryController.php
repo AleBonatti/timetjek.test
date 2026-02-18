@@ -13,6 +13,7 @@ use App\Http\Requests\TimeEntry\DateRangeRequest;
 use App\Http\Requests\TimeEntry\UpdateTimeEntryRequest;
 use App\Models\TimeEntry;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class TimeEntryController extends Controller
@@ -27,7 +28,7 @@ class TimeEntryController extends Controller
     /**
      * Get today's time entries for the authenticated user.
      */
-    public function today(Request $request)
+    public function today(Request $request): JsonResponse
     {
         $timeEntries = TimeEntry::where('user_id', $request->user()->id)
             ->whereDate('clock_in', today())
@@ -42,7 +43,7 @@ class TimeEntryController extends Controller
     /**
      * Clock in.
      */
-    public function clockIn(ClockInRequest $request)
+    public function clockIn(ClockInRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
@@ -61,7 +62,7 @@ class TimeEntryController extends Controller
     /**
      * Clock out.
      */
-    public function clockOut(ClockOutRequest $request)
+    public function clockOut(ClockOutRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
@@ -86,7 +87,7 @@ class TimeEntryController extends Controller
     /**
      * Get time entries for current week (Monday to Sunday).
      */
-    public function currentWeek(Request $request)
+    public function currentWeek(Request $request): JsonResponse
     {
         $timeEntries = TimeEntry::where('user_id', $request->user()->id)
             ->whereBetween('clock_in', [now()->startOfWeek(), now()->endOfWeek()])
@@ -101,7 +102,7 @@ class TimeEntryController extends Controller
     /**
      * Get time entries for current month.
      */
-    public function currentMonth(Request $request)
+    public function currentMonth(Request $request): JsonResponse
     {
         $timeEntries = TimeEntry::where('user_id', $request->user()->id)
             ->whereBetween('clock_in', [now()->startOfMonth(), now()->endOfMonth()])
@@ -116,7 +117,7 @@ class TimeEntryController extends Controller
     /**
      * Get time entries for a custom date range.
      */
-    public function dateRange(DateRangeRequest $request)
+    public function dateRange(DateRangeRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
@@ -136,10 +137,8 @@ class TimeEntryController extends Controller
     /**
      * Update a time entry.
      */
-    public function update(UpdateTimeEntryRequest $request, TimeEntry $timeEntry)
+    public function update(UpdateTimeEntryRequest $request, TimeEntry $timeEntry): JsonResponse
     {
-        $this->authorize('update', $timeEntry);
-
         $timeEntry = $this->updateTimeEntryAction->execute($timeEntry, $request->validated());
 
         return response()->json([
@@ -151,7 +150,7 @@ class TimeEntryController extends Controller
     /**
      * Delete a time entry.
      */
-    public function destroy(Request $request, TimeEntry $timeEntry)
+    public function destroy(TimeEntry $timeEntry): JsonResponse
     {
         $this->authorize('delete', $timeEntry);
 

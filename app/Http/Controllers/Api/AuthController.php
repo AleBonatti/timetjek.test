@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\UpdatePasswordRequest;
 use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +18,7 @@ class AuthController extends Controller
     /**
      * Handle login request.
      */
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): JsonResponse
     {
         // Find user by personnummer
         $user = User::where('personnummer', $request->personnummer)->first();
@@ -40,10 +41,14 @@ class AuthController extends Controller
     /**
      * Handle logout request.
      */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        Auth::guard('web')->logout();
+
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return response()->json([
             'message' => 'Logged out successfully',
@@ -53,7 +58,7 @@ class AuthController extends Controller
     /**
      * Get the authenticated user.
      */
-    public function user(Request $request)
+    public function user(Request $request): JsonResponse
     {
         return response()->json([
             'user' => $request->user(),
@@ -63,7 +68,7 @@ class AuthController extends Controller
     /**
      * Update user password.
      */
-    public function updatePassword(UpdatePasswordRequest $request)
+    public function updatePassword(UpdatePasswordRequest $request): JsonResponse
     {
         $user = $request->user();
 
@@ -87,7 +92,7 @@ class AuthController extends Controller
     /**
      * Update user profile.
      */
-    public function updateProfile(UpdateProfileRequest $request)
+    public function updateProfile(UpdateProfileRequest $request): JsonResponse
     {
         $user = $request->user();
 

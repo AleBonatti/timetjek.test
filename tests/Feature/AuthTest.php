@@ -18,29 +18,29 @@ class AuthTest extends TestCase
     public function test_user_can_login_with_valid_credentials(): void
     {
         $user = User::factory()->create([
-            'personnummer' => '19900101-1234',
+            'personnummer' => '19900101-1239',
             'password' => Hash::make('password'),
         ]);
 
-        $response = $this->postJson('/api/login', [
-            'personnummer' => '19900101-1234',
+        $response = $this->postJson('/api/v1/login', [
+            'personnummer' => '19900101-1239',
             'password' => 'password',
         ]);
 
         $response->assertStatus(200)
             ->assertJsonPath('user.id', $user->id)
-            ->assertJsonPath('user.personnummer', '19900101-1234');
+            ->assertJsonPath('user.personnummer', '19900101-1239');
     }
 
     public function test_login_fails_with_wrong_password(): void
     {
         User::factory()->create([
-            'personnummer' => '19900101-1234',
+            'personnummer' => '19900101-1239',
             'password' => Hash::make('password'),
         ]);
 
-        $response = $this->postJson('/api/login', [
-            'personnummer' => '19900101-1234',
+        $response = $this->postJson('/api/v1/login', [
+            'personnummer' => '19900101-1239',
             'password' => 'wrong-password',
         ]);
 
@@ -50,8 +50,8 @@ class AuthTest extends TestCase
 
     public function test_login_fails_with_unknown_personnummer(): void
     {
-        $response = $this->postJson('/api/login', [
-            'personnummer' => '19001234-0000',
+        $response = $this->postJson('/api/v1/login', [
+            'personnummer' => '20010203-4568', // valid Luhn, but no matching user
             'password' => 'password',
         ]);
 
@@ -61,7 +61,7 @@ class AuthTest extends TestCase
 
     public function test_login_requires_personnummer_and_password(): void
     {
-        $response = $this->postJson('/api/login', []);
+        $response = $this->postJson('/api/v1/login', []);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['personnummer', 'password']);
@@ -75,7 +75,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson('/api/user');
+        $response = $this->actingAs($user)->getJson('/api/v1/user');
 
         $response->assertStatus(200)
             ->assertJsonPath('user.id', $user->id)
@@ -84,7 +84,7 @@ class AuthTest extends TestCase
 
     public function test_unauthenticated_request_to_user_returns_401(): void
     {
-        $response = $this->getJson('/api/user');
+        $response = $this->getJson('/api/v1/user');
 
         $response->assertStatus(401);
     }
@@ -99,7 +99,7 @@ class AuthTest extends TestCase
             'password' => Hash::make('old-password'),
         ]);
 
-        $response = $this->actingAs($user)->putJson('/api/user/password', [
+        $response = $this->actingAs($user)->putJson('/api/v1/user/password', [
             'current_password' => 'old-password',
             'new_password' => 'new-password',
             'new_password_confirmation' => 'new-password',
@@ -115,7 +115,7 @@ class AuthTest extends TestCase
             'password' => Hash::make('correct-password'),
         ]);
 
-        $response = $this->actingAs($user)->putJson('/api/user/password', [
+        $response = $this->actingAs($user)->putJson('/api/v1/user/password', [
             'current_password' => 'wrong-password',
             'new_password' => 'new-password',
             'new_password_confirmation' => 'new-password',
@@ -131,7 +131,7 @@ class AuthTest extends TestCase
             'password' => Hash::make('old-password'),
         ]);
 
-        $response = $this->actingAs($user)->putJson('/api/user/password', [
+        $response = $this->actingAs($user)->putJson('/api/v1/user/password', [
             'current_password' => 'old-password',
             'new_password' => 'new-password',
             // missing new_password_confirmation
@@ -147,7 +147,7 @@ class AuthTest extends TestCase
             'password' => Hash::make('old-password'),
         ]);
 
-        $response = $this->actingAs($user)->putJson('/api/user/password', [
+        $response = $this->actingAs($user)->putJson('/api/v1/user/password', [
             'current_password' => 'old-password',
             'new_password' => 'short',
             'new_password_confirmation' => 'short',
@@ -165,7 +165,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->putJson('/api/user/profile', [
+        $response = $this->actingAs($user)->putJson('/api/v1/user/profile', [
             'name' => 'Updated Name',
             'email' => 'updated@example.com',
         ]);
@@ -183,7 +183,7 @@ class AuthTest extends TestCase
         $user = User::factory()->create();
         $other = User::factory()->create(['email' => 'taken@example.com']);
 
-        $response = $this->actingAs($user)->putJson('/api/user/profile', [
+        $response = $this->actingAs($user)->putJson('/api/v1/user/profile', [
             'name' => 'Name',
             'email' => 'taken@example.com',
         ]);
@@ -196,7 +196,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create(['email' => 'myemail@example.com']);
 
-        $response = $this->actingAs($user)->putJson('/api/user/profile', [
+        $response = $this->actingAs($user)->putJson('/api/v1/user/profile', [
             'name' => 'Updated Name',
             'email' => 'myemail@example.com',
         ]);
@@ -208,12 +208,103 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->putJson('/api/user/profile', [
+        $response = $this->actingAs($user)->putJson('/api/v1/user/profile', [
             'name' => 'Ab',
             'email' => 'valid@example.com',
         ]);
 
         $response->assertStatus(422)
             ->assertJsonValidationErrors(['name']);
+    }
+
+    // -------------------------------------------------------------------------
+    // Personnummer validation
+    // -------------------------------------------------------------------------
+
+    public function test_login_rejects_personnummer_with_invalid_luhn(): void
+    {
+        // 19900101-1230 has wrong check digit (should be 9)
+        $response = $this->postJson('/api/v1/login', [
+            'personnummer' => '19900101-1230',
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['personnummer']);
+    }
+
+    public function test_login_rejects_personnummer_with_bad_format(): void
+    {
+        $response = $this->postJson('/api/v1/login', [
+            'personnummer' => 'not-a-number',
+            'password' => 'password',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['personnummer']);
+    }
+
+    public function test_login_accepts_10_digit_personnummer_format(): void
+    {
+        // Short format: YYMMDD-NNNN (900101-1239 has valid Luhn)
+        // The request validation accepts it; lookup against DB is separate.
+        $response = $this->postJson('/api/v1/login', [
+            'personnummer' => '900101-1239',
+            'password' => 'password',
+        ]);
+
+        // Passes validation (format + Luhn OK) but fails auth (no matching user)
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['personnummer'])
+            ->assertJsonPath('errors.personnummer.0', 'The provided credentials are incorrect.');
+    }
+
+    // -------------------------------------------------------------------------
+    // Logout
+    // -------------------------------------------------------------------------
+
+    public function test_authenticated_user_can_logout(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/api/v1/logout');
+
+        $response->assertStatus(200)
+            ->assertJsonPath('message', 'Logged out successfully');
+    }
+
+    public function test_unauthenticated_request_to_logout_returns_401(): void
+    {
+        $response = $this->postJson('/api/v1/logout');
+
+        $response->assertStatus(401);
+    }
+
+    // -------------------------------------------------------------------------
+    // Rate limiting
+    // -------------------------------------------------------------------------
+
+    public function test_login_is_rate_limited_after_5_attempts(): void
+    {
+        User::factory()->create([
+            'personnummer' => '19900101-1239',
+            'password' => Hash::make('password'),
+        ]);
+
+        // Exhaust the 5 allowed attempts with wrong credentials
+        for ($i = 0; $i < 5; $i++) {
+            $this->postJson('/api/v1/login', [
+                'personnummer' => '19900101-1239',
+                'password' => 'wrong-password',
+            ]);
+        }
+
+        // 6th attempt must be throttled
+        $response = $this->postJson('/api/v1/login', [
+            'personnummer' => '19900101-1239',
+            'password' => 'wrong-password',
+        ]);
+
+        $response->assertStatus(429);
     }
 }

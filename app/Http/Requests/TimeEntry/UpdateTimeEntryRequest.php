@@ -2,13 +2,17 @@
 
 namespace App\Http\Requests\TimeEntry;
 
+use App\Models\TimeEntry;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTimeEntryRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $timeEntry = $this->route('timeEntry');
+
+        return $timeEntry instanceof TimeEntry
+            && $this->user()->can('update', $timeEntry);
     }
 
     public function rules(): array

@@ -158,7 +158,7 @@ const fetchTodayTimeEntries = async () => {
     const startTime = Date.now();
 
     try {
-        const response = await axios.get('/api/time-entries/today');
+        const response = await axios.get('/time-entries/today');
         todayTimeEntries.value = response.data.time_entries;
     } catch (error) {
         console.error('Error fetching time entries:', error);
@@ -180,7 +180,7 @@ const handleClockIn = async () => {
     isClockingIn.value = true;
     try {
         const position = await getCurrentPosition();
-        const response = await axios.post('/api/time-entries/clock-in', {
+        const response = await axios.post('/time-entries/clock-in', {
             latitude: position?.latitude || null,
             longitude: position?.longitude || null,
         });
@@ -197,7 +197,7 @@ const handleClockOut = async () => {
     isClockingOut.value = true;
     try {
         const position = await getCurrentPosition();
-        const response = await axios.post('/api/time-entries/clock-out', {
+        const response = await axios.post('/time-entries/clock-out', {
             latitude: position?.latitude || null,
             longitude: position?.longitude || null,
         });
