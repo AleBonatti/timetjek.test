@@ -102,6 +102,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import axiosRaw from 'axios';
 import { isAxiosError, type AxiosError } from 'axios';
 import { useAuthStore } from '@/stores/auth';
 import { useTheme } from '@/composables/useTheme';
@@ -139,7 +140,7 @@ const validatePersonnummer = (personnummer: string): boolean => {
     return /^\d{10}(\d{2})?$/.test(cleaned);
 };
 
-const handleSubmit = async () => {
+const handleSubmit = () => {
     // Clear previous errors
     errors.value = {};
 
@@ -151,12 +152,10 @@ const handleSubmit = async () => {
 
     loading.value = true;
 
+    setTimeout(async () => {
     try {
-        // Get CSRF cookie
-        await axios.get('/sanctum/csrf-cookie');
-
-        // Simulate network latency
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // Get CSRF cookie — must use raw axios (no baseURL) to hit /sanctum/csrf-cookie correctly
+        await axiosRaw.get('/sanctum/csrf-cookie', { withCredentials: true });
 
         // Attempt login
         const response = await axios.post('/login', {
@@ -168,7 +167,7 @@ const handleSubmit = async () => {
         authStore.setUser(response.data.user);
 
         // Redirect to dashboard
-        router.push({ name: 'dashboard' });
+        await router.push({ name: 'dashboard' });
     } catch (err: unknown) {
         if (isAxiosError(err)) {
             const error = err as AxiosError<Record<string, unknown>>;
@@ -176,11 +175,10 @@ const handleSubmit = async () => {
             const responseData = error.response?.data;
 
             if (error.response?.status === 422) {
-                // Validation errors
+                // Validation errors — collect all field messages
                 const validationErrors = responseData?.errors as Record<string, string[]> | undefined;
 
                 if (validationErrors) {
-                    // Collect all validation error messages
                     Object.keys(validationErrors).forEach((key) => {
                         validationErrors[key].forEach((msg: string) => {
                             apiErrors.push(msg);
@@ -188,19 +186,11 @@ const handleSubmit = async () => {
                     });
                 }
             } else if (error.response?.status === 401) {
-                // Authentication failed
                 apiErrors.push('Invalid credentials. Please check your personnummer and password.');
             } else {
-                apiErrors.push('An error occurred. Please try again later.');
-            }
-
-            // Add any general error message from the response if not already added
-            if (apiErrors.length === 0) {
-                if (responseData?.message && typeof responseData.message === 'string') {
-                    apiErrors.push(responseData.message);
-                } else if (responseData?.error && typeof responseData.error === 'string') {
-                    apiErrors.push(responseData.error);
-                }
+                // For all other statuses (429, 500, …) use the server message if available
+                const serverMessage = responseData?.message;
+                apiErrors.push(typeof serverMessage === 'string' && serverMessage ? serverMessage : 'An error occurred. Please try again later.');
             }
 
             // Store all API errors
@@ -212,6 +202,8 @@ const handleSubmit = async () => {
         }
     } finally {
         loading.value = false;
+        form.value.password = '';
     }
+    }, 500);
 };
 </script>

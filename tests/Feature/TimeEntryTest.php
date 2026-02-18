@@ -83,6 +83,17 @@ class TimeEntryTest extends TestCase
         $response->assertStatus(401);
     }
 
+    public function test_clock_in_fails_when_already_clocked_in(): void
+    {
+        $user = User::factory()->create();
+        TimeEntry::factory()->open()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($user)->postJson('/api/v1/time-entries/clock-in');
+
+        $response->assertStatus(409)
+            ->assertJsonPath('message', 'You already have an open time entry.');
+    }
+
     // -------------------------------------------------------------------------
     // Clock Out
     // -------------------------------------------------------------------------
