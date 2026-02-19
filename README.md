@@ -425,6 +425,22 @@ If frontend assets aren't loading:
 2. Clear browser cache
 3. Check `public/build` directory exists
 
+## Time Report
+
+Total time spent on the project: **~10 hours**.
+
+## AI Usage Report
+
+AI (Claude) was used throughout the project in the following ways:
+
+- **Initial analysis**: Used to analyse the project requirements and produce a structured breakdown before starting development.
+- **Project scaffolding**: Used to set up the project skeleton, including selecting and configuring tools, packages and dependencies for both the Laravel backend and the Vue 3 frontend.
+- **Repetitive tasks**: Used to speed up repetitive boilerplate work such as writing migrations, form requests, controller stubs, and Vue component structure.
+- **Logical problems**: Used to work through non-trivial logic such as time entry overlap detection and personnummer Luhn checksum validation.
+- **Documentation**: Used to produce and maintain the project README.
+
+All AI-generated code was reviewed, tested, and adjusted as needed before being committed.
+
 ## Support
 
 For issues or questions, please contact alessandro.bonatti@elva11.se.
